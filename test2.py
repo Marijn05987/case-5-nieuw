@@ -230,6 +230,19 @@ with tab3:
     # Haal het weeknummer van de geselecteerde datum op
     week_nummer = datum.isocalendar()[1]
 
+    column_mapping = {
+    'Total Rentals': 'Aantal Verhuurde Fietsen',
+    'tavg': 'Gemiddelde Temperatuur (°C)',
+    'tmin': 'Minimale Temperatuur (°C)',
+    'tmax': 'Maximale Temperatuur (°C)',
+    'prcp': 'Neerslag (mm)',
+    'snow': 'Sneeuwval (cm)',
+    'wdir': 'Windrichting (°)',
+    'wspd': 'Windsnelheid (m/s)',
+    'wpgt': 'Windstoten (m/s)',
+    'pres': 'Luchtdruk (hPa)',
+    'tsun': 'Zonduur (uren)'
+    }
     # Filter de data voor de geselecteerde week
     weer_data_2021['Week'] = weer_data_2021['Date'].dt.isocalendar().week
     filtered_data_week = weer_data_2021[weer_data_2021['Week'] == week_nummer]
@@ -258,21 +271,7 @@ with tab3:
     else:
         st.write(f"Geen gegevens gevonden voor week {week_nummer} van 2021.")
 
-    column_mapping = {
-    'Total Rentals': 'Aantal Verhuurde Fietsen',
-    'tavg': 'Gemiddelde Temperatuur (°C)',
-    'tmin': 'Minimale Temperatuur (°C)',
-    'tmax': 'Maximale Temperatuur (°C)',
-    'prcp': 'Neerslag (mm)',
-    'snow': 'Sneeuwval (cm)',
-    'wdir': 'Windrichting (°)',
-    'wspd': 'Windsnelheid (m/s)',
-    'wpgt': 'Windstoten (m/s)',
-    'pres': 'Luchtdruk (hPa)',
-    'tsun': 'Zonduur (uren)'
-}
-        
-    
+
 
     # Deel 2: Nieuwe grafieken (deze voeg je onder de bovenstaande code toe)
     import matplotlib.pyplot as plt
