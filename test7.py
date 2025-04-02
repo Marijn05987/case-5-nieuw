@@ -11,7 +11,8 @@ weather_data = pd.read_csv('weather_london.csv')
 fietsdata['Day'] = pd.to_datetime(fietsdata['Day'], errors='coerce').dt.date
 
 # Convert the index of weather_data to datetime (index contains dates)
-weather_data.index = pd.to_datetime(weather_data.index)
+weather_data['Date'] = pd.to_datetime(weather_data['Unnamed: 0'], errors='coerce')  # Assuming the date is in 'Unnamed: 0'
+weather_data.set_index('Date', inplace=True)  # Set the 'Date' column as index
 
 # Streamlit app
 st.title("Bike Rentals and Weather Data")
@@ -77,7 +78,7 @@ elif graph_option == "Precipitation":
 
 elif graph_option == "Temperature vs Rentals":
     # Create a new figure and axis object
-    if not week_weather.empty:
+    if not week_weather.empty and not week_fietsdata.empty:
         fig, ax = plt.subplots(figsize=(10, 6))
         ax.plot(week_weather.index.date, week_weather['tavg'], marker='o', label="Temperature (°C)", color='r')
         ax.plot(week_fietsdata['Day'], week_fietsdata['Total Rentals'], marker='o', label="Total Rentals", color='b')
@@ -87,4 +88,4 @@ elif graph_option == "Temperature vs Rentals":
         ax.legend()
         st.pyplot(fig)  # Pass the figure to st.pyplot
     else:
-        st.write("No weather data available for the selected week.")
+        st.write("No weather data or rental data available for the selected week.")
