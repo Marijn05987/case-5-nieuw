@@ -163,7 +163,7 @@ with tab2:
     st.header("🚲 Fietsverhuurstations")
 
     with st.expander("⚙ *Fiets Filteropties*", expanded=True):
-        bike_slider = st.slider("*Selecteer het minimum aantal beschikbare fietsen*", 0, 100, 0)
+        bike_slider = st.slider("*Selecteer het minimum aantal beschikbare fietsen*", 0, 60, 0)
 
     df_cyclestations = pd.read_csv('cycle_stations.csv')
     df_cyclestations['installDateFormatted'] = pd.to_datetime(df_cyclestations['installDate'], unit='ms').dt.strftime('%d-%m-%Y')
