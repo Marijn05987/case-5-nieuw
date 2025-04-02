@@ -1,7 +1,6 @@
 import pandas as pd
 import streamlit as st
 import matplotlib.pyplot as plt
-import seaborn as sns
 from datetime import datetime
 
 # Load the datasets
@@ -9,7 +8,7 @@ fietsdata = pd.read_csv('fietsdata2021_rentals_by_day.csv')
 weather_data = pd.read_csv('weather_london.csv')
 
 # Convert the 'Day' column to datetime
-fietsdata['Day'] = pd.to_datetime(fietsdata['Day'])
+fietsdata['Day'] = pd.to_datetime(fietsdata['Day'], errors='coerce').dt.date  # Ensure the 'Day' column is of datetime.date type
 weather_data['tavg_date'] = pd.to_datetime(weather_data.index)
 
 # Streamlit app
@@ -24,15 +23,22 @@ selected_week = selected_date.isocalendar()[1]
 # Display the selected week
 st.write(f"Selected Date: {selected_date} (Week {selected_week})")
 
-# Filter data for the selected week (7 days before and after)
+# Ensure selected_date is of datetime.date type for comparison
 start_of_week = selected_date - pd.Timedelta(days=selected_date.weekday())  # Start of the week
 end_of_week = start_of_week + pd.Timedelta(days=6)  # End of the week
 
-# Filter the fietsdata for the week
+# Ensure that 'Day' column in fietsdata is also a datetime.date for comparison
+start_of_week = start_of_week.date()
+end_of_week = end_of_week.date()
+
+# Check if the data type matches
+st.write(f"Start of week: {start_of_week}, End of week: {end_of_week}")
+
+# Filter data for the selected week (7 days before and after)
 week_fietsdata = fietsdata[(fietsdata['Day'] >= start_of_week) & (fietsdata['Day'] <= end_of_week)]
 
 # Filter the weather data for the same week
-week_weather = weather_data[(weather_data['tavg_date'] >= start_of_week) & (weather_data['tavg_date'] <= end_of_week)]
+week_weather = weather_data[(weather_data['tavg_date'].dt.date >= start_of_week) & (weather_data['tavg_date'].dt.date <= end_of_week)]
 
 # Allow the user to select which graph they want to see
 graph_option = st.selectbox("Select a graph to display", ["Total Rentals", "Average Temperature", "Precipitation", "Temperature vs Rentals"])
@@ -75,4 +81,3 @@ elif graph_option == "Temperature vs Rentals":
     plt.ylabel("Values")
     plt.legend()
     st.pyplot()
-
