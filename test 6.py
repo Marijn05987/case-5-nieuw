@@ -304,7 +304,26 @@ with tab3:
         ax.set_xlabel("Datum")
         ax.set_title(f"{weerfactor_keuze} voor Week {week_nummer}")
         ax.tick_params(axis="x", rotation=45)
-        
+
+        # **Toevoegen van regressielijn**
+        # X en Y voor regressie: weerfactor vs. fietsverhuringen
+        x = filtered_data_week_reset[weerfactor_keuze]
+        y = filtered_data_week_reset['Aantal Verhuurde Fietsen']
+
+        # Verwijder NA-waarden voor regressieanalyse
+        valid_data = filtered_data_week_reset.dropna(subset=[weerfactor_keuze, 'Aantal Verhuurde Fietsen'])
+        x_valid = valid_data[weerfactor_keuze]
+        y_valid = valid_data['Aantal Verhuurde Fietsen']
+
+        # Regressiemodel
+        x_with_constant = sm.add_constant(x_valid)
+        model = sm.OLS(y_valid, x_with_constant).fit()
+
+        # Regressielijn toevoegen aan de plot
+        ax.plot(filtered_data_week_reset['Date'], model.predict(sm.add_constant(x)), color='tab:red', label=f"Regressielijn (R²={model.rsquared:.2f})")
+        ax.legend()
+
+        # Plotten
         st.pyplot(fig)
 
     else:
