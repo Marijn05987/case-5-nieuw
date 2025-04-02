@@ -286,6 +286,77 @@ combined_df = pd.merge(fiets_rentals, weer_data, left_on="Day", right_on="Date",
 # Verwijder de dubbele datumkolom (we houden "Day")
 combined_df.drop(columns=["Date"], inplace=True)
 
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+import streamlit as st
+
+# Laad de datasets
+weer_data = pd.read_csv('weather_london.csv')
+fiets_rentals = pd.read_csv('fietsdata2021_rentals_by_day.csv')
+
+# Zet de datums in datetime-formaat
+weer_data["Date"] = pd.to_datetime(weer_data["Unnamed: 0"])
+fiets_rentals["Day"] = pd.to_datetime(fiets_rentals["Day"])
+
+# Filter de weerdata voor 2021
+weer_data_2021 = weer_data[weer_data['Date'].dt.year == 2021]
+
+# Kalender om een specifieke datum te kiezen
+datum = st.date_input("*Selecteer een datum in 2021*", min_value=pd.to_datetime("2021-01-01"), max_value=pd.to_datetime("2021-12-31"))
+
+# Haal het weeknummer van de geselecteerde datum op
+week_nummer = datum.isocalendar()[1]
+
+# Filter de data voor de geselecteerde week
+weer_data_2021['Week'] = weer_data_2021['Date'].dt.isocalendar().week
+filtered_data_week = weer_data_2021[weer_data_2021['Week'] == week_nummer]
+
+# Filter de fietsdata voor de geselecteerde week
+fiets_rentals['Week'] = fiets_rentals['Day'].dt.isocalendar().week
+filtered_fiets_rentals = fiets_rentals[fiets_rentals['Week'] == week_nummer]
+
+# Toon de gegevens voor de geselecteerde week
+if not filtered_data_week.empty and not filtered_fiets_rentals.empty:
+    st.write(f"Gegevens voor week {week_nummer} van 2021 (rondom {datum.strftime('%d-%m-%Y')}):")
+
+    # Weerdata grafieken
+    st.subheader("Weergrafieken voor de geselecteerde week")
+    
+    fig, axes = plt.subplots(3, 1, figsize=(10, 12))
+    sns.lineplot(data=filtered_data_week, x='Date', y='tavg', ax=axes[0], label='Gemiddelde Temperatuur (°C)', color='orange')
+    axes[0].set_title("Gemiddelde Temperatuur per Dag")
+    axes[0].set_xlabel('Datum')
+    axes[0].set_ylabel('Temperatuur (°C)')
+    
+    sns.lineplot(data=filtered_data_week, x='Date', y='prcp', ax=axes[1], label='Neerslag (mm)', color='blue')
+    axes[1].set_title("Neerslag per Dag")
+    axes[1].set_xlabel('Datum')
+    axes[1].set_ylabel('Neerslag (mm)')
+    
+    sns.lineplot(data=filtered_data_week, x='Date', y='wspd', ax=axes[2], label='Windsnelheid (m/s)', color='green')
+    axes[2].set_title("Windsnelheid per Dag")
+    axes[2].set_xlabel('Datum')
+    axes[2].set_ylabel('Windsnelheid (m/s)')
+
+    plt.tight_layout()
+    st.pyplot(fig)
+
+    # Fietsverhuurdata grafiek
+    st.subheader("Fietsverhuurdata voor de geselecteerde week")
+    fig_fiets, ax_fiets = plt.subplots(figsize=(10, 6))
+    sns.lineplot(data=filtered_fiets_rentals, x='Day', y='Total Rentals', ax=ax_fiets, label='Aantal Verhuurde Fietsen', color='purple')
+    ax_fiets.set_title("Aantal Verhuurde Fietsen per Dag")
+    ax_fiets.set_xlabel('Datum')
+    ax_fiets.set_ylabel('Aantal Verhuurde Fietsen')
+    plt.tight_layout()
+    st.pyplot(fig_fiets)
+
+else:
+    st.write(f"Geen gegevens gevonden voor week {week_nummer} van 2021.")
+
+
+
 # Streamlit-app titel
 st.title("Regressieanalyse: Fietsverhuur en Weer")
 
