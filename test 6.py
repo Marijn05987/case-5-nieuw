@@ -23,29 +23,27 @@ stations_dict = {
 }
  
  # Fix 'AnnualisedEnEx' (verwijder niet-numerieke tekens en zet om naar float)
- metro_data["AnnualisedEnEx"] = (
-     metro_data["AnnualisedEnEx"]
-     .astype(str)
-     .str.replace(r"[^\d]", "", regex=True)
-     .astype(float)
- )
+metro_data["AnnualisedEnEx"] = (
+    metro_data["AnnualisedEnEx"]
+    .astype(str)
+    .str.replace(r"[^\d]", "", regex=True)
+    .astype(float) )
  
  # Vermenigvuldig de Entries en Exits met 1.000 om juiste aantallen te krijgen
- entry_exit_cols = [
-     "Weekday(Mon-Thu)Entries", "Weekday(Mon-Thu)Exits",
-     "FridayEntries", "SaturdayEntries", "SundayEntries",
-     "FridayExits", "SaturdayExits", "SundayExits"
- ]
- metro_data[entry_exit_cols] = metro_data[entry_exit_cols] * 1000
+entry_exit_cols = [
+    "Weekday(Mon-Thu)Entries", "Weekday(Mon-Thu)Exits",
+    "FridayEntries", "SaturdayEntries", "SundayEntries",
+    "FridayExits", "SaturdayExits", "SundayExits" ]
+metro_data[entry_exit_cols] = metro_data[entry_exit_cols] * 1000
  
  # Bereken totale drempelwaardes over alle data
- metro_data["TotalEnEx"] = metro_data[entry_exit_cols].sum(axis=1)
+metro_data["TotalEnEx"] = metro_data[entry_exit_cols].sum(axis=1)
  
- low_threshold = metro_data["TotalEnEx"].quantile(0.33)
- mid_threshold = metro_data["TotalEnEx"].quantile(0.66)
+low_threshold = metro_data["TotalEnEx"].quantile(0.33)
+mid_threshold = metro_data["TotalEnEx"].quantile(0.66)
  
  # Tabs aanmaken
- tab1, tab2, tab3 = st.tabs(["🚇 Metro Stations en Lijnen", "🚲 Fietsverhuurstations", "🌤️ Weerdata"])
+tab1, tab2, tab3 = st.tabs(["🚇 Metro Stations en Lijnen", "🚲 Fietsverhuurstations", "🌤️ Weerdata"])
  
  with tab1:
      st.header("🚇 Metro Stations en Lijnen")
