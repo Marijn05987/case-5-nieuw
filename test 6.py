@@ -7,43 +7,45 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import statsmodels.api as sm
  
-# Data inladen
-bestanden = ['2021_Q2_Central.csv', '2021_Q3_Central.csv', '2021_Q4_Central.csv']
-fiets_data_jaar = pd.concat([pd.read_csv(file) for file in bestanden], ignore_index=True)
+ # Data inladen
+ bestanden = ['2021_Q2_Central.csv', '2021_Q3_Central.csv', '2021_Q4_Central.csv']
+ fiets_data_jaar = pd.concat([pd.read_csv(file) for file in bestanden], ignore_index=True)
  
-weer_data = pd.read_csv('weather_london.csv')
-metro_data = pd.read_csv('AC2021_AnnualisedEntryExit.csv', sep=';')
-metro_stations_data = pd.read_csv('London stations.csv')
-tube_lines_data = pd.read_csv('London tube lines.csv')
+ weer_data = pd.read_csv('weather_london.csv')
+ metro_data = pd.read_csv('AC2021_AnnualisedEntryExit.csv', sep=';')
+ metro_stations_data = pd.read_csv('London stations.csv')
+ tube_lines_data = pd.read_csv('London tube lines.csv')
  
-# Coördinaten dictionary
-stations_dict = {
-    row["Station"]: (row["Latitude"], row["Longitude"]) 
-    for _, row in metro_stations_data.iterrows()
-}
+ # Coördinaten dictionary
+ stations_dict = {
+     row["Station"]: (row["Latitude"], row["Longitude"]) 
+     for _, row in metro_stations_data.iterrows()
+ }
  
  # Fix 'AnnualisedEnEx' (verwijder niet-numerieke tekens en zet om naar float)
-metro_data["AnnualisedEnEx"] = (
-    metro_data["AnnualisedEnEx"]
-    .astype(str)
-    .str.replace(r"[^\d]", "", regex=True)
-    .astype(float) )
+ metro_data["AnnualisedEnEx"] = (
+     metro_data["AnnualisedEnEx"]
+     .astype(str)
+     .str.replace(r"[^\d]", "", regex=True)
+     .astype(float)
+ )
  
  # Vermenigvuldig de Entries en Exits met 1.000 om juiste aantallen te krijgen
-entry_exit_cols = [
-    "Weekday(Mon-Thu)Entries", "Weekday(Mon-Thu)Exits",
-    "FridayEntries", "SaturdayEntries", "SundayEntries",
-    "FridayExits", "SaturdayExits", "SundayExits" ]
-metro_data[entry_exit_cols] = metro_data[entry_exit_cols] * 1000
+ entry_exit_cols = [
+     "Weekday(Mon-Thu)Entries", "Weekday(Mon-Thu)Exits",
+     "FridayEntries", "SaturdayEntries", "SundayEntries",
+     "FridayExits", "SaturdayExits", "SundayExits"
+ ]
+ metro_data[entry_exit_cols] = metro_data[entry_exit_cols] * 1000
  
  # Bereken totale drempelwaardes over alle data
-metro_data["TotalEnEx"] = metro_data[entry_exit_cols].sum(axis=1)
+ metro_data["TotalEnEx"] = metro_data[entry_exit_cols].sum(axis=1)
  
-low_threshold = metro_data["TotalEnEx"].quantile(0.33)
-mid_threshold = metro_data["TotalEnEx"].quantile(0.66)
+ low_threshold = metro_data["TotalEnEx"].quantile(0.33)
+ mid_threshold = metro_data["TotalEnEx"].quantile(0.66)
  
  # Tabs aanmaken
-tab1, tab2, tab3 = st.tabs(["🚇 Metro Stations en Lijnen", "🚲 Fietsverhuurstations", "🌤️ Weerdata"])
+ tab1, tab2, tab3 = st.tabs(["🚇 Metro Stations en Lijnen", "🚲 Fietsverhuurstations", "🌤️ Weerdata"])
  
  with tab1:
      st.header("🚇 Metro Stations en Lijnen")
