@@ -7,9 +7,11 @@ from datetime import datetime
 fietsdata = pd.read_csv('fietsdata2021_rentals_by_day.csv')
 weather_data = pd.read_csv('weather_london.csv')
 
-# Convert the 'Day' column in fietsdata to datetime
-fietsdata['Day'] = pd.to_datetime(fietsdata['Day'], errors='coerce').dt.date  # Ensure 'Day' column is of type datetime.date
-weather_data['tavg_date'] = pd.to_datetime(weather_data.index)
+# Convert the 'Day' column in fietsdata to datetime (make sure it's in the right format)
+fietsdata['Day'] = pd.to_datetime(fietsdata['Day'], errors='coerce').dt.date
+
+# Convert the index of weather_data to datetime (assuming the dates are in the index)
+weather_data.index = pd.to_datetime(weather_data.index)
 
 # Streamlit app
 st.title("Bike Rentals and Weather Data")
@@ -30,8 +32,8 @@ end_of_week = start_of_week + pd.Timedelta(days=6)  # End of the week
 # Filter data for the selected week (7 days before and after)
 week_fietsdata = fietsdata[(fietsdata['Day'] >= start_of_week) & (fietsdata['Day'] <= end_of_week)]
 
-# Filter the weather data for the same week
-week_weather = weather_data[(weather_data['tavg_date'].dt.date >= start_of_week) & (weather_data['tavg_date'].dt.date <= end_of_week)]
+# Filter the weather data for the same week based on the index (which contains the dates)
+week_weather = weather_data[(weather_data.index.date >= start_of_week) & (weather_data.index.date <= end_of_week)]
 
 # Debug: Show the filtered weather data to check
 st.write("Filtered weather data for the week:", week_weather)
@@ -53,7 +55,7 @@ elif graph_option == "Average Temperature":
     # Create a new figure and axis object
     if not week_weather.empty:
         fig, ax = plt.subplots(figsize=(10, 6))
-        ax.plot(week_weather['tavg_date'], week_weather['tavg'], marker='o', color='r')
+        ax.plot(week_weather.index.date, week_weather['tavg'], marker='o', color='r')
         ax.set_title("Average Temperature for the Week")
         ax.set_xlabel("Day")
         ax.set_ylabel("Temperature (°C)")
@@ -65,7 +67,7 @@ elif graph_option == "Precipitation":
     # Create a new figure and axis object
     if not week_weather.empty:
         fig, ax = plt.subplots(figsize=(10, 6))
-        ax.bar(week_weather['tavg_date'], week_weather['prcp'], color='g')
+        ax.bar(week_weather.index.date, week_weather['prcp'], color='g')
         ax.set_title("Precipitation for the Week")
         ax.set_xlabel("Day")
         ax.set_ylabel("Precipitation (mm)")
@@ -77,7 +79,7 @@ elif graph_option == "Temperature vs Rentals":
     # Create a new figure and axis object
     if not week_weather.empty:
         fig, ax = plt.subplots(figsize=(10, 6))
-        ax.plot(week_weather['tavg_date'], week_weather['tavg'], marker='o', label="Temperature (°C)", color='r')
+        ax.plot(week_weather.index.date, week_weather['tavg'], marker='o', label="Temperature (°C)", color='r')
         ax.plot(week_fietsdata['Day'], week_fietsdata['Total Rentals'], marker='o', label="Total Rentals", color='b')
         ax.set_title("Temperature vs Rentals for the Week")
         ax.set_xlabel("Day")
