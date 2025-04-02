@@ -220,6 +220,12 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 
 # Deel 1: Je oorspronkelijke code (geen veranderingen hier)
+import streamlit as st
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+# Deel 1: Je oorspronkelijke code (geen veranderingen hier)
 st.header("🌤️ Weerdata voor 2021")
 
 # Laad weerdata en zet de 'Unnamed: 0' kolom om naar een datetime-object
@@ -284,45 +290,36 @@ if not filtered_data_week.empty and not filtered_fiets_rentals.empty:
     # Datum formatteren
     filtered_data_week_reset['Date'] = filtered_data_week_reset['Date'].dt.strftime('%d %B %Y')
 
+    # Deel 3: Voeg checkboxen toe om grafieken te kiezen die we willen combineren
+    show_temperature = st.checkbox("Gemiddelde Temperatuur (°C)")
+    show_rentals = st.checkbox("Aantal Verhuurde Fietsen")
+    show_precipitation = st.checkbox("Neerslag (mm)")
+
     # Weergrafieken voor de geselecteerde week
     st.subheader("Weergrafieken voor de geselecteerde week")
-    
-    fig, axes = plt.subplots(3, 1, figsize=(10, 12))
 
-    # Gemiddelde temperatuur
-    sns.lineplot(data=filtered_data_week, x='Date', y='Gemiddelde Temperatuur (°C)', ax=axes[0], label='Gemiddelde Temperatuur (°C)', color='orange')
-    axes[0].set_title("Gemiddelde Temperatuur per Dag")
-    axes[0].set_xlabel('Datum')
-    axes[0].set_ylabel('Temperatuur (°C)')
-    
-    # Neerslag
-    sns.lineplot(data=filtered_data_week, x='Date', y='Neerslag (mm)', ax=axes[1], label='Neerslag (mm)', color='blue')
-    axes[1].set_title("Neerslag per Dag")
-    axes[1].set_xlabel('Datum')
-    axes[1].set_ylabel('Neerslag (mm)')
-    
-    # Windsnelheid
-    sns.lineplot(data=filtered_data_week, x='Date', y='Windsnelheid (m/s)', ax=axes[2], label='Windsnelheid (m/s)', color='green')
-    axes[2].set_title("Windsnelheid per Dag")
-    axes[2].set_xlabel('Datum')
-    axes[2].set_ylabel('Windsnelheid (m/s)')
+    fig, ax = plt.subplots(figsize=(10, 6))
+
+    # Combineer geselecteerde grafieken in één plot
+    if show_temperature:
+        sns.lineplot(data=filtered_data_week, x='Date', y='Gemiddelde Temperatuur (°C)', ax=ax, label='Gemiddelde Temperatuur (°C)', color='orange')
+
+    if show_rentals:
+        sns.lineplot(data=filtered_fiets_rentals, x='Day', y='Total Rentals', ax=ax, label='Aantal Verhuurde Fietsen', color='purple')
+
+    if show_precipitation:
+        sns.lineplot(data=filtered_data_week, x='Date', y='Neerslag (mm)', ax=ax, label='Neerslag (mm)', color='blue')
+
+    ax.set_title("Gecombineerde Grafieken")
+    ax.set_xlabel('Datum')
+    ax.set_ylabel('Waarde')
+    ax.legend()
 
     plt.tight_layout()
     st.pyplot(fig)
 
-    # Fietsverhuurdata grafiek
-    st.subheader("Fietsverhuurdata voor de geselecteerde week")
-    fig_fiets, ax_fiets = plt.subplots(figsize=(10, 6))
-    sns.lineplot(data=filtered_fiets_rentals, x='Day', y='Total Rentals', ax=ax_fiets, label='Aantal Verhuurde Fietsen', color='purple')
-    ax_fiets.set_title("Aantal Verhuurde Fietsen per Dag")
-    ax_fiets.set_xlabel('Datum')
-    ax_fiets.set_ylabel('Aantal Verhuurde Fietsen')
-    plt.tight_layout()
-    st.pyplot(fig_fiets)
-
 else:
     st.write(f"Geen gegevens gevonden voor week {week_nummer} van 2021.")
-
 
 
 # Streamlit-app titel
