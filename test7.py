@@ -7,10 +7,10 @@ from datetime import datetime
 fietsdata = pd.read_csv('fietsdata2021_rentals_by_day.csv')
 weather_data = pd.read_csv('weather_london.csv')
 
-# Convert the 'Day' column in fietsdata to datetime
-fietsdata['Day'] = pd.to_datetime(fietsdata['Day'], errors='coerce').dt.date  # Ensure 'Day' column is of type datetime.date
+# Convert the 'Day' column in fietsdata to datetime (ensure it's in the correct format)
+fietsdata['Day'] = pd.to_datetime(fietsdata['Day'], errors='coerce').dt.date
 
-# Convert the index of weather_data to datetime
+# Convert the index of weather_data to datetime (index contains dates)
 weather_data.index = pd.to_datetime(weather_data.index)
 
 # Streamlit app
