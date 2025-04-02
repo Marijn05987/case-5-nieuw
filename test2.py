@@ -208,139 +208,83 @@ with tab2:
         st.metric("Elektrische Fietsen", f"{total_ebikes} fietsen", f"{percentage_ebikes:.2f}%")
 
 with tab3:
-    import streamlit as st
-import pandas as pd
-import seaborn as sns
-import matplotlib.pyplot as plt
+    st.header("🌤️ Weerdata voor 2021")
 
-# Deel 1: Je oorspronkelijke code (geen veranderingen hier)
-import streamlit as st
-import pandas as pd
-import seaborn as sns
-import matplotlib.pyplot as plt
+    # Zet de 'Unnamed: 0' kolom om naar een datetime-object
+    weer_data['Date'] = pd.to_datetime(weer_data['Unnamed: 0'], format='%Y-%m-%d')
 
-# Deel 1: Je oorspronkelijke code (geen veranderingen hier)
-import streamlit as st
-import pandas as pd
-import seaborn as sns
-import matplotlib.pyplot as plt
+    # Zet de datum in de fietsdata correct
+    fiets_rentals = pd.read_csv('fietsdata2021_rentals_by_day.csv')
+    fiets_rentals["Day"] = pd.to_datetime(fiets_rentals["Day"])
 
-# Deel 1: Je oorspronkelijke code (geen veranderingen hier)
-import streamlit as st
-import pandas as pd
-import seaborn as sns
-import matplotlib.pyplot as plt
+    # Merge de weerdata en fietsdata op datum
+    weer_data = pd.merge(weer_data, fiets_rentals[['Day', 'Total Rentals']], left_on='Date', right_on='Day', how='left')
 
-# Deel 1: Je oorspronkelijke code (geen veranderingen hier)
-import streamlit as st
-import pandas as pd
-import seaborn as sns
-import matplotlib.pyplot as plt
+    # Filter de data voor 2021
+    weer_data_2021 = weer_data[weer_data['Date'].dt.year == 2021]
 
-# Deel 1: Je oorspronkelijke code (geen veranderingen hier)
-import streamlit as st
-import pandas as pd
-import seaborn as sns
-import matplotlib.pyplot as plt
+    # Vertaling van kolomnamen
+    column_mapping = {
+        'Total Rentals': 'Aantal Verhuurde Fietsen',
+        'tavg': 'Gemiddelde Temperatuur (°C)',
+        'tmin': 'Minimale Temperatuur (°C)',
+        'tmax': 'Maximale Temperatuur (°C)',
+        'prcp': 'Neerslag (mm)',
+        'snow': 'Sneeuwval (cm)',
+        'wdir': 'Windrichting (°)',
+        'wspd': 'Windsnelheid (m/s)',
+        'wpgt': 'Windstoten (m/s)',
+        'pres': 'Luchtdruk (hPa)',
+        'tsun': 'Zonduur (uren)'
+    }
 
-# Deel 1: Je oorspronkelijke code (geen veranderingen hier)
-st.header("🌤️ Weerdata voor 2021")
+    # Kalender om een specifieke datum te kiezen
+    datum = st.date_input("*Selecteer een datum in 2021*", min_value=pd.to_datetime("2021-01-01"), max_value=pd.to_datetime("2021-12-31"))
 
-# Laad weerdata en zet de 'Unnamed: 0' kolom om naar een datetime-object
-weer_data = pd.read_csv('weather_london.csv')
-weer_data['Date'] = pd.to_datetime(weer_data['Unnamed: 0'], format='%Y-%m-%d')
+    # Haal het weeknummer van de geselecteerde datum op
+    week_nummer = datum.isocalendar()[1]
 
-# Zet de datum in de fietsdata correct
+    # Filter de data voor de geselecteerde week
+    weer_data_2021['Week'] = weer_data_2021['Date'].dt.isocalendar().week
+    filtered_data_week = weer_data_2021[weer_data_2021['Week'] == week_nummer]
+
+    # Toon de gegevens voor de geselecteerde week
+    if not filtered_data_week.empty:
+        st.write(f"Gegevens voor week {week_nummer} van 2021 (rondom {datum.strftime('%d-%m-%Y')}):")
+
+        # Vervang kolomnamen met de vertaalde versie
+        filtered_data_week = filtered_data_week.rename(columns=column_mapping)
+
+        # Reset de index en voeg de aangepaste index toe die begint bij 1
+        filtered_data_week_reset = filtered_data_week.reset_index(drop=True)
+        filtered_data_week_reset.index = filtered_data_week_reset.index + 1  # Start index vanaf 1
+
+        # Datum formatteren
+        filtered_data_week_reset['Date'] = filtered_data_week_reset['Date'].dt.strftime('%d %B %Y')
+
+        # Kolommen herschikken om "Aantal Verhuurde Fietsen" direct na de datum te zetten
+        kolommen = ['Date', 'Aantal Verhuurde Fietsen', 'Gemiddelde Temperatuur (°C)', 'Minimale Temperatuur (°C)', 
+                    'Maximale Temperatuur (°C)', 'Neerslag (mm)', 'Sneeuwval (cm)', 'Windrichting (°)', 
+                    'Windsnelheid (m/s)', 'Windstoten (m/s)', 'Luchtdruk (hPa)', 'Zonduur (uren)']
+        
+        st.dataframe(filtered_data_week_reset[kolommen])
+
+    else:
+        st.write(f"Geen gegevens gevonden voor week {week_nummer} van 2021.")
+
+        # Data inladen
 fiets_rentals = pd.read_csv('fietsdata2021_rentals_by_day.csv')
+weer_data = pd.read_csv('weather_london.csv')
+
+# Zorg ervoor dat de datums in datetime-formaat staan
 fiets_rentals["Day"] = pd.to_datetime(fiets_rentals["Day"])
+weer_data["Date"] = pd.to_datetime(weer_data["Unnamed: 0"])  # Zet de juiste kolomnaam om
 
-# Merge de weerdata en fietsdata op datum
-weer_data = pd.merge(weer_data, fiets_rentals[['Day', 'Total Rentals']], left_on='Date', right_on='Day', how='left')
+# Merge de datasets op datum
+combined_df = pd.merge(fiets_rentals, weer_data, left_on="Day", right_on="Date", how="inner")
 
-# Filter de data voor 2021
-weer_data_2021 = weer_data[weer_data['Date'].dt.year == 2021]
-
-# Deel 2: Kalender om een specifieke datum te selecteren (met datumkiezer)
-datum = st.date_input(
-    "*Selecteer een datum in 2021*", 
-    min_value=pd.to_datetime("2021-01-01"), 
-    max_value=pd.to_datetime("2021-12-31")
-)
-
-# Haal het weeknummer van de geselecteerde datum op
-week_nummer = datum.isocalendar()[1]
-
-# Vertaling van kolomnamen
-column_mapping = {
-    'Total Rentals': 'Aantal Verhuurde Fietsen',
-    'tavg': 'Gemiddelde Temperatuur (°C)',
-    'tmin': 'Minimale Temperatuur (°C)',
-    'tmax': 'Maximale Temperatuur (°C)',
-    'prcp': 'Neerslag (mm)',
-    'snow': 'Sneeuwval (cm)',
-    'wdir': 'Windrichting (°)',
-    'wspd': 'Windsnelheid (m/s)',
-    'wpgt': 'Windstoten (m/s)',
-    'pres': 'Luchtdruk (hPa)',
-    'tsun': 'Zonduur (uren)'
-}
-
-# Filter de weerdata voor de geselecteerde week
-weer_data_2021['Week'] = weer_data_2021['Date'].dt.isocalendar().week
-filtered_data_week = weer_data_2021[weer_data_2021['Week'] == week_nummer]
-
-# Filter de fietsdata voor de geselecteerde week
-fiets_rentals['Week'] = fiets_rentals['Day'].dt.isocalendar().week
-filtered_fiets_rentals = fiets_rentals[fiets_rentals['Week'] == week_nummer]
-
-# Deel 3: Voeg checkboxen toe om grafieken te kiezen die we willen combineren
-st.subheader("Kies welke grafieken je wilt vergelijken:")
-
-# Plaats de checkboxen voor de verschillende grafieken
-show_temperature = st.checkbox("Gemiddelde Temperatuur (°C)", value=True)
-show_rentals = st.checkbox("Aantal Verhuurde Fietsen", value=True)
-show_precipitation = st.checkbox("Neerslag (mm)", value=True)
-
-# Toon de grafieken voor de geselecteerde week als de gegevens aanwezig zijn
-if not filtered_data_week.empty and not filtered_fiets_rentals.empty:
-    st.write(f"Gegevens voor week {week_nummer} van 2021 (rondom {datum.strftime('%d-%m-%Y')}):")
-
-    # Vervang kolomnamen met de vertaalde versie
-    filtered_data_week = filtered_data_week.rename(columns=column_mapping)
-
-    # Reset de index en voeg de aangepaste index toe die begint bij 1
-    filtered_data_week_reset = filtered_data_week.reset_index(drop=True)
-    filtered_data_week_reset.index = filtered_data_week_reset.index + 1  # Start index vanaf 1
-
-    # Datum formatteren
-    filtered_data_week_reset['Date'] = filtered_data_week_reset['Date'].dt.strftime('%d %B %Y')
-
-    # Weergrafieken voor de geselecteerde week
-    st.subheader("Gecombineerde Grafieken voor de geselecteerde week")
-
-    fig, ax = plt.subplots(figsize=(10, 6))
-
-    # Combineer de geselecteerde grafieken in één plot
-    if show_temperature:
-        sns.lineplot(data=filtered_data_week, x='Date', y='Gemiddelde Temperatuur (°C)', ax=ax, label='Gemiddelde Temperatuur (°C)', color='orange')
-
-    if show_rentals:
-        sns.lineplot(data=filtered_fiets_rentals, x='Day', y='Total Rentals', ax=ax, label='Aantal Verhuurde Fietsen', color='purple')
-
-    if show_precipitation:
-        sns.lineplot(data=filtered_data_week, x='Date', y='Neerslag (mm)', ax=ax, label='Neerslag (mm)', color='blue')
-
-    ax.set_title("Gecombineerde Grafieken")
-    ax.set_xlabel('Datum')
-    ax.set_ylabel('Waarde')
-    ax.legend()
-
-    plt.tight_layout()
-    st.pyplot(fig)
-
-else:
-    st.write(f"Geen gegevens gevonden voor week {week_nummer} van 2021.")
-
+# Verwijder de dubbele datumkolom (we houden "Day")
+combined_df.drop(columns=["Date"], inplace=True)
 
 # Streamlit-app titel
 st.title("Regressieanalyse: Fietsverhuur en Weer")
