@@ -160,7 +160,7 @@ with tab1:
     folium_static(m)
 
 with tab2:
- st.header("🚲 Fietsverhuurstations")
+    st.header("🚲 Fietsverhuurstations")
 
     with st.expander("⚙ *Fiets Filteropties*", expanded=True):
         bike_slider = st.slider("*Selecteer het minimum aantal beschikbare fietsen*", 0, 61, 0)
@@ -184,7 +184,6 @@ with tab2:
             ).add_to(marker_cluster)
 
     folium_static(m)
-
 
 with tab3:
     st.header("🌤️ Weerdata voor 2021")
