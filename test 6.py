@@ -163,7 +163,7 @@ with tab2:
     st.header("🚲 Fietsverhuurstations")
 
     with st.expander("⚙ *Fiets Filteropties*", expanded=True):
-        bike_slider = st.slider("*Selecteer het minimum aantal beschikbare fietsen*", 0, 100, 0)
+        bike_slider = st.slider("*Selecteer het minimum aantal beschikbare fietsen*", 0, 61, 0)
 
     df_cyclestations = pd.read_csv('cycle_stations.csv')
     df_cyclestations['installDateFormatted'] = pd.to_datetime(df_cyclestations['installDate'], unit='ms').dt.strftime('%d-%m-%Y')
@@ -184,6 +184,29 @@ with tab2:
             ).add_to(marker_cluster)
 
     folium_static(m)
+
+    # Hieronder komt de nieuwe code die je vroeg:
+    # Bereken het totaal aantal fietsen, standaard fietsen, en ebikes
+    total_bikes = df_cyclestations['nbBikes'].sum()
+    total_standard_bikes = df_cyclestations['nbStandardBikes'].sum()
+    total_ebikes = df_cyclestations['nbEBikes'].sum()
+
+    # Bereken de percentages van de standaard fietsen en ebikes
+    percentage_standard_bikes = (total_standard_bikes / total_bikes * 100) if total_bikes > 0 else 0
+    percentage_ebikes = (total_ebikes / total_bikes * 100) if total_bikes > 0 else 0
+
+    # Toont de percentages in vakjes onderaan de pagina
+    st.write("### Percentage Fietsen")
+
+    # Maak twee kolommen voor de percentages
+    col1, col2 = st.columns(2)
+
+    with col1:
+        st.metric("Standaard Fietsen", f"{total_standard_bikes} fietsen", f"{percentage_standard_bikes:.2f}%")
+    
+    with col2:
+        st.metric("Elektrische Fietsen", f"{total_ebikes} fietsen", f"{percentage_ebikes:.2f}%")
+
 
 with tab3:
     st.header("🌤️ Weerdata voor 2021")
