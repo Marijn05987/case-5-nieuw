@@ -208,7 +208,7 @@ with tab2:
         st.metric("Elektrische Fietsen", f"{total_ebikes} fietsen", f"{percentage_ebikes:.2f}%")
 
 with tab3:
-    st.header("🌤️ Weerdata voor 2021")
+       st.header("🌤️ Weerdata voor 2021")
 
     # Zet de 'Unnamed: 0' kolom om naar een datetime-object
     weer_data['Date'] = pd.to_datetime(weer_data['Unnamed: 0'], format='%Y-%m-%d')
