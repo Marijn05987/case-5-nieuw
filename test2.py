@@ -258,6 +258,22 @@ with tab3:
     else:
         st.write(f"Geen gegevens gevonden voor week {week_nummer} van 2021.")
 
+    column_mapping = {
+    'Total Rentals': 'Aantal Verhuurde Fietsen',
+    'tavg': 'Gemiddelde Temperatuur (°C)',
+    'tmin': 'Minimale Temperatuur (°C)',
+    'tmax': 'Maximale Temperatuur (°C)',
+    'prcp': 'Neerslag (mm)',
+    'snow': 'Sneeuwval (cm)',
+    'wdir': 'Windrichting (°)',
+    'wspd': 'Windsnelheid (m/s)',
+    'wpgt': 'Windstoten (m/s)',
+    'pres': 'Luchtdruk (hPa)',
+    'tsun': 'Zonduur (uren)'
+}
+        
+    
+
     # Deel 2: Nieuwe grafieken (deze voeg je onder de bovenstaande code toe)
     import matplotlib.pyplot as plt
     import seaborn as sns
