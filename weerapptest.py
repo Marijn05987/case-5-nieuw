@@ -8,7 +8,7 @@ fietsdata = pd.read_csv('fietsdata2021_rentals_by_day.csv')
 weather_data = pd.read_csv('weather_london.csv')
 
 # Convert the 'Day' column to datetime
-fietsdata['Day'] = pd.to_datetime(fietsdata['Day'], errors='coerce').dt.date  # Ensure the 'Day' column is of datetime.date type
+fietsdata['Day'] = pd.to_datetime(fietsdata['Day'], errors='coerce').dt.date  # Ensure 'Day' column is of type datetime.date
 weather_data['tavg_date'] = pd.to_datetime(weather_data.index)
 
 # Streamlit app
@@ -23,16 +23,9 @@ selected_week = selected_date.isocalendar()[1]
 # Display the selected week
 st.write(f"Selected Date: {selected_date} (Week {selected_week})")
 
-# Ensure selected_date is of datetime.date type for comparison
+# Calculate start and end of the week without converting to date again
 start_of_week = selected_date - pd.Timedelta(days=selected_date.weekday())  # Start of the week
 end_of_week = start_of_week + pd.Timedelta(days=6)  # End of the week
-
-# Ensure that 'Day' column in fietsdata is also a datetime.date for comparison
-start_of_week = start_of_week.date()
-end_of_week = end_of_week.date()
-
-# Check if the data type matches
-st.write(f"Start of week: {start_of_week}, End of week: {end_of_week}")
 
 # Filter data for the selected week (7 days before and after)
 week_fietsdata = fietsdata[(fietsdata['Day'] >= start_of_week) & (fietsdata['Day'] <= end_of_week)]
