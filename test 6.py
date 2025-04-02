@@ -1,11 +1,11 @@
 import pandas as pd
- import streamlit as st
- import folium
- from streamlit_folium import folium_static
- from folium.plugins import MarkerCluster
- import seaborn as sns
- import matplotlib.pyplot as plt
- import statsmodels.api as sm
+import streamlit as st
+import folium
+from streamlit_folium import folium_static
+from folium.plugins import MarkerCluster
+import seaborn as sns
+import matplotlib.pyplot as plt
+import statsmodels.api as sm
  
  # Data inladen
  bestanden = ['2021_Q2_Central.csv', '2021_Q3_Central.csv', '2021_Q4_Central.csv']
