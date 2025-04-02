@@ -270,46 +270,42 @@ with tab3:
         
         st.dataframe(filtered_data_week_reset[kolommen])
 
+        # **Nieuwe functie om grafieken te tonen op basis van de gekozen weerfactor**
+        weerfactor_keuze = st.selectbox(
+            "Kies een weerfactor om weer te geven:",
+            ["Gemiddelde Temperatuur (°C)", "Minimale Temperatuur (°C)", "Maximale Temperatuur (°C)", 
+             "Neerslag (mm)", "Windsnelheid (m/s)", "Zonduur (uren)"]
+        )
+
+        # Filter de data voor de gekozen weerfactor
+        fig, ax = plt.subplots(figsize=(10, 6))
+
+        # Grafiek weergeven op basis van de geselecteerde factor
+        if weerfactor_keuze == "Gemiddelde Temperatuur (°C)":
+            ax.plot(filtered_data_week_reset['Date'], filtered_data_week_reset['Gemiddelde Temperatuur (°C)'], marker='o', color='tab:blue')
+            ax.set_ylabel("Gemiddelde Temperatuur (°C)")
+        elif weerfactor_keuze == "Minimale Temperatuur (°C)":
+            ax.plot(filtered_data_week_reset['Date'], filtered_data_week_reset['Minimale Temperatuur (°C)'], marker='o', color='tab:cyan')
+            ax.set_ylabel("Minimale Temperatuur (°C)")
+        elif weerfactor_keuze == "Maximale Temperatuur (°C)":
+            ax.plot(filtered_data_week_reset['Date'], filtered_data_week_reset['Maximale Temperatuur (°C)'], marker='o', color='tab:red')
+            ax.set_ylabel("Maximale Temperatuur (°C)")
+        elif weerfactor_keuze == "Neerslag (mm)":
+            ax.plot(filtered_data_week_reset['Date'], filtered_data_week_reset['Neerslag (mm)'], marker='o', color='tab:green')
+            ax.set_ylabel("Neerslag (mm)")
+        elif weerfactor_keuze == "Windsnelheid (m/s)":
+            ax.plot(filtered_data_week_reset['Date'], filtered_data_week_reset['Windsnelheid (m/s)'], marker='o', color='tab:orange')
+            ax.set_ylabel("Windsnelheid (m/s)")
+        elif weerfactor_keuze == "Zonduur (uren)":
+            ax.plot(filtered_data_week_reset['Date'], filtered_data_week_reset['Zonduur (uren)'], marker='o', color='tab:yellow')
+            ax.set_ylabel("Zonduur (uren)")
+
+        # Gemeenschappelijke instellingen voor de grafiek
+        ax.set_xlabel("Datum")
+        ax.set_title(f"{weerfactor_keuze} voor Week {week_nummer}")
+        ax.tick_params(axis="x", rotation=45)
+        
+        st.pyplot(fig)
+
     else:
-        st.write(f"Geen gegevens gevonden voor week {week_nummer} van 2021.")
-
-        # Data inladen
-fiets_rentals = pd.read_csv('fietsdata2021_rentals_by_day.csv')
-weer_data = pd.read_csv('weather_london.csv')
-
-# Zorg ervoor dat de datums in datetime-formaat staan
-fiets_rentals["Day"] = pd.to_datetime(fiets_rentals["Day"])
-weer_data["Date"] = pd.to_datetime(weer_data["Unnamed: 0"])  # Zet de juiste kolomnaam om
-
-# Merge de datasets op datum
-combined_df = pd.merge(fiets_rentals, weer_data, left_on="Day", right_on="Date", how="inner")
-
-# Verwijder de dubbele datumkolom (we houden "Day")
-combined_df.drop(columns=["Date"], inplace=True)
-
-# Streamlit-app titel
-st.title("Regressieanalyse: Fietsverhuur en Weer")
-
-# Selecteer een weerfactor voor de regressie
-weerfactor = st.selectbox("Kies een weerfactor:", ["tavg", "tmin", "tmax", "prcp", "wspd"])
-
-# X en Y variabelen
-x = combined_df[weerfactor]  # Weerfactor (bijv. temperatuur)
-y = combined_df["Total Rentals"]  # Aantal fietsverhuringen
-
-# Regressiemodel maken
-x_with_constant = sm.add_constant(x)  # Constante toevoegen voor de regressie
-model = sm.OLS(y, x_with_constant).fit()
-r_squared = model.rsquared  # R²-waarde van de regressie
-equation = f"y = {model.params[1]:.2f}x + {model.params[0]:.2f}"  # Regressievergelijking
-
-# Plot maken met seaborn
-fig, ax = plt.subplots(figsize=(8, 5))
-sns.regplot(x=x, y=y, line_kws={'color': 'red'}, scatter_kws={'alpha': 0.5}, ax=ax)
-ax.set_xlabel(weerfactor)
-ax.set_ylabel("Aantal Fietsverhuringen")
-ax.set_title(f"Regressie: {weerfactor} vs. Fietsverhuur\nR² = {r_squared:.2f}")
-ax.text(0.05, 0.9, equation, transform=ax.transAxes, fontsize=12, color="red")
-
-# Toon de plot in Streamlit
-st.pyplot(fig)
+        st.write(f"Geen gegevens gevonden voor week {week_nummer} van 2021.")
