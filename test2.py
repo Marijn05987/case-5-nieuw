@@ -160,59 +160,30 @@ with tab1:
     folium_static(m)
 
 with tab2:
+ st.header("🚲 Fietsverhuurstations")
 
+    with st.expander("⚙ *Fiets Filteropties*", expanded=True):
+        bike_slider = st.slider("*Selecteer het minimum aantal beschikbare fietsen*", 0, 61, 0)
 
-    
-    import pandas as pd
-import folium
-from folium.plugins import MarkerCluster
-from streamlit import st
-from streamlit_folium import folium_static
+    df_cyclestations = pd.read_csv('cycle_stations.csv')
+    df_cyclestations['installDateFormatted'] = pd.to_datetime(df_cyclestations['installDate'], unit='ms').dt.strftime('%d-%m-%Y')
 
-st.header("🚲 Fietsverhuurstations")
+    m = folium.Map(location=[51.5074, -0.1278], zoom_start=12)
+    marker_cluster = MarkerCluster().add_to(m)
 
-with st.expander("⚙ *Fiets Filteropties*", expanded=True):
-    bike_slider = st.slider("*Selecteer het minimum aantal beschikbare fietsen*", 0, 61, 0)
+    for index, row in df_cyclestations.iterrows():
+        lat, long, station_name = row['lat'], row['long'], row['name']
+        nb_bikes, nb_standard_bikes, nb_ebikes = row['nbBikes'], row['nbStandardBikes'], row['nbEBikes']
+        install_date = row['installDateFormatted']
 
-df_cyclestations = pd.read_csv('cycle_stations.csv')
-df_cyclestations['installDateFormatted'] = pd.to_datetime(df_cyclestations['installDate'], unit='ms').dt.strftime('%d-%m-%Y')
+        if nb_bikes >= bike_slider:
+            folium.Marker(
+                location=[lat, long],
+                popup=folium.Popup(f"Station: {station_name}<br>Aantal fietsen: {nb_bikes}<br>Standaard: {nb_standard_bikes}<br>EBikes: {nb_ebikes}<br>Installatiedatum: {install_date}", max_width=300),
+                icon=folium.Icon(color='blue', icon='info-sign')
+            ).add_to(marker_cluster)
 
-m = folium.Map(location=[51.5074, -0.1278], zoom_start=12)
-marker_cluster = MarkerCluster().add_to(m)
-
-# Variabelen om totalen bij te houden
-total_bikes = 0
-total_standard_bikes = 0
-total_ebikes = 0
-
-for index, row in df_cyclestations.iterrows():
-    lat, long, station_name = row['lat'], row['long'], row['name']
-    nb_bikes, nb_standard_bikes, nb_ebikes = row['nbBikes'], row['nbStandardBikes'], row['nbEBikes']
-    install_date = row['installDateFormatted']
-
-    if nb_bikes >= bike_slider:
-        folium.Marker(
-            location=[lat, long],
-            popup=folium.Popup(f"Station: {station_name}<br>Aantal fietsen: {nb_bikes}<br>Standaard: {nb_standard_bikes}<br>EBikes: {nb_ebikes}<br>Installatiedatum: {install_date}", max_width=300),
-            icon=folium.Icon(color='blue', icon='info-sign')
-        ).add_to(marker_cluster)
-
-    # Totaal aantal fietsen bijhouden
-    total_bikes += nb_bikes
-    total_standard_bikes += nb_standard_bikes
-    total_ebikes += nb_ebikes
-
-# Bereken percentages
-percentage_standard_bikes = (total_standard_bikes / total_bikes * 100) if total_bikes > 0 else 0
-percentage_ebikes = (total_ebikes / total_bikes * 100) if total_bikes > 0 else 0
-
-# Toon het resultaat onderaan
-st.write(f"### Aantal fietsen en percentages")
-st.write(f"**Aantal standaard fietsen (nbStandardBikes):** {total_standard_bikes} ({percentage_standard_bikes:.2f}%)")
-st.write(f"**Aantal elektrische fietsen (nbEBikes):** {total_ebikes} ({percentage_ebikes:.2f}%)")
-
-# Toon de kaart
-folium_static(m)
+    folium_static(m)
 
 
 with tab3:
