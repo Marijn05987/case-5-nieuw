@@ -1,6 +1,7 @@
 folium
 streamlit
 pandas
+seaborn
 streamlit_folium
 plotly.express
 geopandas
