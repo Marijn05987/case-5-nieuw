@@ -238,6 +238,12 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 
 # Deel 1: Je oorspronkelijke code (geen veranderingen hier)
+import streamlit as st
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+# Deel 1: Je oorspronkelijke code (geen veranderingen hier)
 st.header("🌤️ Weerdata voor 2021")
 
 # Laad weerdata en zet de 'Unnamed: 0' kolom om naar een datetime-object
@@ -254,15 +260,14 @@ weer_data = pd.merge(weer_data, fiets_rentals[['Day', 'Total Rentals']], left_on
 # Filter de data voor 2021
 weer_data_2021 = weer_data[weer_data['Date'].dt.year == 2021]
 
-# Deel 2: Dropdown-menu om een specifieke datum te selecteren
-datum = st.selectbox(
+# Deel 2: Kalender om een specifieke datum te selecteren (met datumkiezer)
+datum = st.date_input(
     "*Selecteer een datum in 2021*", 
-    options=pd.to_datetime(fiets_rentals["Day"]).dt.strftime('%Y-%m-%d').tolist(),
-    format_func=lambda x: pd.to_datetime(x).strftime('%d-%m-%Y')
+    min_value=pd.to_datetime("2021-01-01"), 
+    max_value=pd.to_datetime("2021-12-31")
 )
 
 # Haal het weeknummer van de geselecteerde datum op
-datum = pd.to_datetime(datum)
 week_nummer = datum.isocalendar()[1]
 
 # Vertaling van kolomnamen
@@ -288,7 +293,15 @@ filtered_data_week = weer_data_2021[weer_data_2021['Week'] == week_nummer]
 fiets_rentals['Week'] = fiets_rentals['Day'].dt.isocalendar().week
 filtered_fiets_rentals = fiets_rentals[fiets_rentals['Week'] == week_nummer]
 
-# Toon de gegevens voor de geselecteerde week (grafieken)
+# Deel 3: Voeg checkboxen toe om grafieken te kiezen die we willen combineren
+st.subheader("Kies welke grafieken je wilt vergelijken:")
+
+# Plaats de checkboxen voor de verschillende grafieken
+show_temperature = st.checkbox("Gemiddelde Temperatuur (°C)", value=True)
+show_rentals = st.checkbox("Aantal Verhuurde Fietsen", value=True)
+show_precipitation = st.checkbox("Neerslag (mm)", value=True)
+
+# Toon de grafieken voor de geselecteerde week als de gegevens aanwezig zijn
 if not filtered_data_week.empty and not filtered_fiets_rentals.empty:
     st.write(f"Gegevens voor week {week_nummer} van 2021 (rondom {datum.strftime('%d-%m-%Y')}):")
 
@@ -302,20 +315,12 @@ if not filtered_data_week.empty and not filtered_fiets_rentals.empty:
     # Datum formatteren
     filtered_data_week_reset['Date'] = filtered_data_week_reset['Date'].dt.strftime('%d %B %Y')
 
-    # Deel 3: Voeg checkboxen toe om grafieken te kiezen die we willen combineren
-    st.subheader("Kies welke grafieken je wilt vergelijken:")
-    
-    # Plaats de checkboxen boven de grafieken
-    show_temperature = st.checkbox("Gemiddelde Temperatuur (°C)", value=True)
-    show_rentals = st.checkbox("Aantal Verhuurde Fietsen", value=True)
-    show_precipitation = st.checkbox("Neerslag (mm)", value=True)
-
     # Weergrafieken voor de geselecteerde week
     st.subheader("Gecombineerde Grafieken voor de geselecteerde week")
 
     fig, ax = plt.subplots(figsize=(10, 6))
 
-    # Combineer geselecteerde grafieken in één plot
+    # Combineer de geselecteerde grafieken in één plot
     if show_temperature:
         sns.lineplot(data=filtered_data_week, x='Date', y='Gemiddelde Temperatuur (°C)', ax=ax, label='Gemiddelde Temperatuur (°C)', color='orange')
 
