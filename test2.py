@@ -232,6 +232,12 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 
 # Deel 1: Je oorspronkelijke code (geen veranderingen hier)
+import streamlit as st
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+# Deel 1: Je oorspronkelijke code (geen veranderingen hier)
 st.header("🌤️ Weerdata voor 2021")
 
 # Laad weerdata en zet de 'Unnamed: 0' kolom om naar een datetime-object
@@ -297,12 +303,15 @@ if not filtered_data_week.empty and not filtered_fiets_rentals.empty:
     filtered_data_week_reset['Date'] = filtered_data_week_reset['Date'].dt.strftime('%d %B %Y')
 
     # Deel 3: Voeg checkboxen toe om grafieken te kiezen die we willen combineren
-    show_temperature = st.checkbox("Gemiddelde Temperatuur (°C)")
-    show_rentals = st.checkbox("Aantal Verhuurde Fietsen")
-    show_precipitation = st.checkbox("Neerslag (mm)")
+    st.subheader("Kies welke grafieken je wilt vergelijken:")
+    
+    # Plaats de checkboxen boven de grafieken
+    show_temperature = st.checkbox("Gemiddelde Temperatuur (°C)", value=True)
+    show_rentals = st.checkbox("Aantal Verhuurde Fietsen", value=True)
+    show_precipitation = st.checkbox("Neerslag (mm)", value=True)
 
     # Weergrafieken voor de geselecteerde week
-    st.subheader("Weergrafieken voor de geselecteerde week")
+    st.subheader("Gecombineerde Grafieken voor de geselecteerde week")
 
     fig, ax = plt.subplots(figsize=(10, 6))
 
@@ -326,6 +335,7 @@ if not filtered_data_week.empty and not filtered_fiets_rentals.empty:
 
 else:
     st.write(f"Geen gegevens gevonden voor week {week_nummer} van 2021.")
+
 
 # Streamlit-app titel
 st.title("Regressieanalyse: Fietsverhuur en Weer")
