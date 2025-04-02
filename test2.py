@@ -226,6 +226,12 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 
 # Deel 1: Je oorspronkelijke code (geen veranderingen hier)
+import streamlit as st
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+# Deel 1: Je oorspronkelijke code (geen veranderingen hier)
 st.header("🌤️ Weerdata voor 2021")
 
 # Laad weerdata en zet de 'Unnamed: 0' kolom om naar een datetime-object
@@ -320,7 +326,6 @@ if not filtered_data_week.empty and not filtered_fiets_rentals.empty:
 
 else:
     st.write(f"Geen gegevens gevonden voor week {week_nummer} van 2021.")
-
 
 # Streamlit-app titel
 st.title("Regressieanalyse: Fietsverhuur en Weer")
