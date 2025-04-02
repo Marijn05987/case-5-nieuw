@@ -38,39 +38,39 @@ graph_option = st.selectbox("Select a graph to display", ["Total Rentals", "Aver
 
 # Plot the selected graph
 if graph_option == "Total Rentals":
-    # Plot Total Rentals for the selected week
-    plt.figure(figsize=(10, 6))
-    plt.plot(week_fietsdata['Day'], week_fietsdata['Total Rentals'], marker='o', color='b')
-    plt.title("Total Rentals for the Week")
-    plt.xlabel("Day")
-    plt.ylabel("Total Rentals")
-    st.pyplot()
+    # Create a new figure and axis object
+    fig, ax = plt.subplots(figsize=(10, 6))
+    ax.plot(week_fietsdata['Day'], week_fietsdata['Total Rentals'], marker='o', color='b')
+    ax.set_title("Total Rentals for the Week")
+    ax.set_xlabel("Day")
+    ax.set_ylabel("Total Rentals")
+    st.pyplot(fig)  # Pass the figure to st.pyplot
 
 elif graph_option == "Average Temperature":
-    # Plot the Average Temperature for the selected week
-    plt.figure(figsize=(10, 6))
-    plt.plot(week_weather['tavg_date'], week_weather['tavg'], marker='o', color='r')
-    plt.title("Average Temperature for the Week")
-    plt.xlabel("Day")
-    plt.ylabel("Temperature (°C)")
-    st.pyplot()
+    # Create a new figure and axis object
+    fig, ax = plt.subplots(figsize=(10, 6))
+    ax.plot(week_weather['tavg_date'], week_weather['tavg'], marker='o', color='r')
+    ax.set_title("Average Temperature for the Week")
+    ax.set_xlabel("Day")
+    ax.set_ylabel("Temperature (°C)")
+    st.pyplot(fig)  # Pass the figure to st.pyplot
 
 elif graph_option == "Precipitation":
-    # Plot Precipitation for the selected week
-    plt.figure(figsize=(10, 6))
-    plt.bar(week_weather['tavg_date'], week_weather['prcp'], color='g')
-    plt.title("Precipitation for the Week")
-    plt.xlabel("Day")
-    plt.ylabel("Precipitation (mm)")
-    st.pyplot()
+    # Create a new figure and axis object
+    fig, ax = plt.subplots(figsize=(10, 6))
+    ax.bar(week_weather['tavg_date'], week_weather['prcp'], color='g')
+    ax.set_title("Precipitation for the Week")
+    ax.set_xlabel("Day")
+    ax.set_ylabel("Precipitation (mm)")
+    st.pyplot(fig)  # Pass the figure to st.pyplot
 
 elif graph_option == "Temperature vs Rentals":
-    # Plot Temperature vs Total Rentals for the selected week
-    plt.figure(figsize=(10, 6))
-    plt.plot(week_weather['tavg_date'], week_weather['tavg'], marker='o', label="Temperature (°C)", color='r')
-    plt.plot(week_fietsdata['Day'], week_fietsdata['Total Rentals'], marker='o', label="Total Rentals", color='b')
-    plt.title("Temperature vs Rentals for the Week")
-    plt.xlabel("Day")
-    plt.ylabel("Values")
-    plt.legend()
-    st.pyplot()
+    # Create a new figure and axis object
+    fig, ax = plt.subplots(figsize=(10, 6))
+    ax.plot(week_weather['tavg_date'], week_weather['tavg'], marker='o', label="Temperature (°C)", color='r')
+    ax.plot(week_fietsdata['Day'], week_fietsdata['Total Rentals'], marker='o', label="Total Rentals", color='b')
+    ax.set_title("Temperature vs Rentals for the Week")
+    ax.set_xlabel("Day")
+    ax.set_ylabel("Values")
+    ax.legend()
+    st.pyplot(fig)  # Pass the figure to st.pyplot
