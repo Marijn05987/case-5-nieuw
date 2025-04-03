@@ -313,3 +313,83 @@ ax.text(0.05, 0.9, equation, transform=ax.transAxes, fontsize=12, color="red")
 
 # Toon de plot in Streamlit
 st.pyplot(fig)
+
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+import streamlit as st
+
+# Load the weather data (2000-2023)
+weer_data = pd.read_csv('weather_london.csv')
+
+# The weather data starts at index 7673 for 01-01-2021, so let's assign the date manually.
+start_date = pd.to_datetime('2021-01-01')
+
+# Create a new column 'Date' based on the index of the weather data
+weer_data['Date'] = pd.date_range(start=start_date, periods=len(weer_data), freq='D')
+
+# Now, filter the weather data for the year 2021
+weer_data_2021 = weer_data[(weer_data['Date'] >= '2021-01-01') & (weer_data['Date'] <= '2021-12-31')]
+
+# Now, filter the data for the selected week (week_nummer)
+week_nummer = 1  # Replace this with your logic to select the week
+
+# Calculate the start and end dates for the selected week
+start_date = pd.to_datetime(f'2021-W{week_nummer}-1', format='%Y-W%U-%w')
+end_date = start_date + pd.DateOffset(days=6)
+
+# Filter the weather data for the selected week
+filtered_weather_data = weer_data_2021[(weer_data_2021['Date'] >= start_date) & (weer_data_2021['Date'] <= end_date)]
+
+# Load the fietsdata (bike rental data)
+fiets_rentals = pd.read_csv('fietsdata2021_rentals_by_day.csv')
+
+# Ensure 'Day' column in fietsdata is in datetime format
+fiets_rentals['Day'] = pd.to_datetime(fiets_rentals['Day'])
+
+# Merge the weather data with the bike rental data based on the 'Date' and 'Day' columns
+merged_data = pd.merge(filtered_weather_data, fiets_rentals[['Day', 'Total Rentals']], left_on='Date', right_on='Day', how='left')
+
+# Create a selectbox for choosing the type of graph
+graph_type = st.selectbox(
+    "Kies de grafiek die je wilt zien:",
+    ["Temperatuur", "Neerslag", "Temperatuur en Neerslag"]
+)
+
+# Set the plot size and style
+fig, ax1 = plt.subplots(figsize=(10, 6))
+sns.set(style="whitegrid")
+
+# Plot based on user selection
+if graph_type == "Temperatuur":
+    ax1.plot(merged_data['Date'], merged_data['tavg'], label="Gemiddelde Temperatuur (°C)", marker='o', color='red', linestyle='-', markersize=6)
+    ax1.plot(merged_data['Date'], merged_data['tmin'], label="Minimale Temperatuur (°C)", marker='x', color='orange', linestyle='-', markersize=6)
+    ax1.plot(merged_data['Date'], merged_data['tmax'], label="Maximale Temperatuur (°C)", marker='s', color='green', linestyle='-', markersize=6)
+
+elif graph_type == "Neerslag":
+    ax1.bar(merged_data['Date'], merged_data['prcp'], label="Neerslag (mm)", color='blue', alpha=0.3)
+
+else:  # "Temperatuur en Neerslag"
+    ax1.plot(merged_data['Date'], merged_data['tavg'], label="Gemiddelde Temperatuur (°C)", marker='o', color='red', linestyle='-', markersize=6)
+    ax1.plot(merged_data['Date'], merged_data['tmin'], label="Minimale Temperatuur (°C)", marker='x', color='orange', linestyle='-', markersize=6)
+    ax1.plot(merged_data['Date'], merged_data['tmax'], label="Maximale Temperatuur (°C)", marker='s', color='green', linestyle='-', markersize=6)
+    ax1.bar(merged_data['Date'], merged_data['prcp'], label="Neerslag (mm)", color='blue', alpha=0.3)
+
+# Set up secondary y-axis for the number of rentals
+ax2 = ax1.twinx()
+ax2.plot(merged_data['Date'], merged_data['Total Rentals'], label="Aantal Verhuurde Fietsen", color='purple', marker='^', linestyle='--', markersize=6)
+
+# Customize the plot
+ax1.set_title(f"{graph_type} en Aantal Verhuurde Fietsen voor de geselecteerde week")
+ax1.set_xlabel("Datum")
+ax1.set_ylabel("Weerdata (°C / mm)")
+ax2.set_ylabel("Aantal Verhuurde Fietsen")
+ax1.tick_params(axis='x', rotation=45)
+
+# Legends for both y-axes
+ax1.legend(loc="upper left")
+ax2.legend(loc="upper right")
+
+# Display the plot in Streamlit
+st.pyplot(fig)
+
