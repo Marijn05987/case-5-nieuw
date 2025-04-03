@@ -320,13 +320,16 @@ import seaborn as sns
 import streamlit as st
 
 # Load the weather data (2000-2023)
-weer_data_2021 = pd.read_csv('weather_london.csv')
+weer_data = pd.read_csv('weather_london.csv')
 
-# Make sure the index is correct, and filter rows for the year 2021 (from index 7673)
-weer_data_2021['Date'] = pd.to_datetime(weer_data_2021['Date'])  # Assuming your 'Date' column exists and needs conversion
+# The weather data starts at index 7673 for 01-01-2021, so let's assign the date manually.
+start_date = pd.to_datetime('2021-01-01')
 
-# Filtering for the year 2021 only by using index from 7673 onward
-weer_data_2021 = weer_data_2021[weer_data_2021['Date'].dt.year == 2021]
+# Create a new column 'Date' based on the index of the weather data
+weer_data['Date'] = pd.date_range(start=start_date, periods=len(weer_data), freq='D')
+
+# Now, filter the weather data for the year 2021
+weer_data_2021 = weer_data[(weer_data['Date'] >= '2021-01-01') & (weer_data['Date'] <= '2021-12-31')]
 
 # Now, filter the data for the selected week (week_nummer)
 week_nummer = 1  # Replace this with your logic to select the week
@@ -389,4 +392,3 @@ ax2.legend(loc="upper right")
 
 # Display the plot in Streamlit
 st.pyplot(fig)
-
