@@ -189,112 +189,48 @@ with tab2:
     folium_static(m)
 
 with tab3:
-    
     # Streamlit titel
     st.title("🚴 Ritjes")
-    
-    # Lijst van maandnamen in het Nederlands
+
     maandnamen = [
         'Januari', 'Februari', 'Maart', 'April', 'Mei', 'Juni', 
         'Juli', 'Augustus', 'September', 'Oktober', 'November', 'December'
     ]
-    
-    # Maak lege lijsten voor de gemiddelde duur en het aantal ritjes per maand
+
     average_durations = []
     ride_counts = []
-    
-    # Itereer door de bestanden bike_1klein t/m bike_12klein
+
     for i in range(1, 13):
-        # Bestandsnaam opbouwen
         file_name = f'bike_{i}klein.csv'
-        
-        # Lees het CSV-bestand in een DataFrame
         df = pd.read_csv(file_name)
-        
-        # Bereken de gemiddelde 'Duration' in minuten
-        avg_duration_minutes = df['Duration'].mean() / 60  # Omrekenen van seconden naar minuten
+        avg_duration_minutes = df['Duration'].mean() / 60
         average_durations.append(avg_duration_minutes)
-        
-        # Tel het aantal ritjes (aantal rijen in de DataFrame)
         ride_count = len(df)
         ride_counts.append(ride_count)
     
-    # Maak een DataFrame met maandnamen, gemiddelde duur en het aantal ritjes
     avg_df = pd.DataFrame({
-        'Month': maandnamen,  # Gebruik maandnamen in plaats van nummers
-        'Average Duration (Minutes)': average_durations,
-        'Ride Count': ride_counts
+        'Month': maandnamen,
+        'Avg Ride Duration (Minutes)': average_durations,
+        'Number of Rides': ride_counts
     })
-    
-    # Dropdown menu voor de grafiekkeuze
-    option = st.selectbox("Selecteer een optie:", ['Gemiddelde duur', 'Aantal ritjes', 'Beide'])
-    
-    if option == 'Gemiddelde duur':
-        # Maak een Plotly lijn plot van de gemiddelde duur per maand in minuten
-        fig_avg_duration = go.Figure()
-        fig_avg_duration.add_trace(go.Scatter(
-            x=avg_df['Month'], 
-            y=avg_df['Average Duration (Minutes)'], 
-            mode='lines+markers',
-            name='Gemiddelde Duur (Minuten)'
-        ))
-        fig_avg_duration.update_layout(
-            title='Gemiddelde ritjesduur (Minuten)',
-            xaxis_title='Maand',
-            yaxis_title='Gemiddelde Duur (Minuten)',
-            xaxis=dict(type='category', tickangle=45),
-            yaxis=dict(range=[10, 30])
-        )
-        st.plotly_chart(fig_avg_duration)
-    
-    elif option == 'Aantal ritjes':
-        # Maak een Plotly lijn plot van het aantal ritjes per maand
-        fig_ride_count = go.Figure()
-        fig_ride_count.add_trace(go.Scatter(
-            x=avg_df['Month'], 
-            y=avg_df['Ride Count'], 
-            mode='lines+markers',
-            name='Aantal Ritjes'
-        ))
-        fig_ride_count.update_layout(
-            title='Aantal Ritjes per Maand',
-            xaxis_title='Maand',
-            yaxis_title='Aantal Ritjes',
-            xaxis=dict(type='category', tickangle=45)
-        )
-        st.plotly_chart(fig_ride_count)
-    
-    elif option == 'Beide':
-        # Maak een gecombineerde grafiek met dubbele y-assen
-        fig_combined = go.Figure()
-    
-        # Lijn voor gemiddelde duur
-        fig_combined.add_trace(go.Scatter(
-            x=avg_df['Month'], 
-            y=avg_df['Average Duration (Minutes)'], 
-            mode='lines+markers',
-            name='Gemiddelde Duur (Minuten)',
-            yaxis='y1'
-        ))
-    
-        # Lijn voor aantal ritjes
-        fig_combined.add_trace(go.Scatter(
-            x=avg_df['Month'], 
-            y=avg_df['Ride Count'], 
-            mode='lines+markers',
-            name='Aantal Ritjes',
-            yaxis='y2'
-        ))
-    
-        # Layout instellen met dubbele y-assen
-        fig_combined.update_layout(
-            title='Gemiddelde Duur en Aantal Ritjes per Maand',
-            xaxis=dict(title='Maand', type='category', tickangle=45),
-            yaxis=dict(title='Gemiddelde Duur (Minuten)', side='left', range=[10, 30]),
-            yaxis2=dict(title='Aantal Ritjes', side='right', overlaying='y'),
-            legend=dict(x=0.5, y=-0.2, orientation='h')
-        )
-        st.plotly_chart(fig_combined)
+
+    st.write(avg_df)
+    st.write("### Monthly Analysis")
+
+    # Bar plot for number of rides
+    fig = plt.figure(figsize=(10, 5))
+    ax = fig.add_subplot(111)
+    ax.bar(maandnamen, ride_counts, color='skyblue')
+    ax.set_title('Aantal ritten per maand')
+    ax.set_ylabel('Aantal ritten')
+    st.pyplot(fig)
+
+    # Line plot for average ride duration
+    fig, ax = plt.subplots(figsize=(10, 5))
+    ax.plot(maandnamen, average_durations, marker='o', color='orange')
+    ax.set_title('Gemiddelde ritduur per maand (in minuten)')
+    ax.set_ylabel('Gemiddelde ritduur (minuten)')
+    st.pyplot(fig)
 
 
 with tab4:
@@ -414,7 +350,8 @@ with tab4:
     
     # Toon de plot in Streamlit
     st.pyplot(fig)
-    
+
+
     # Selectbox om grafieken te kiezen
     grafiek_keuze = st.selectbox('Kies welke grafiek je wilt zien:', 
                                  ['Aantal Verhuurde Fietsen per Dag', 
