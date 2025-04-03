@@ -1,11 +1,6 @@
-import matplotlib.pyplot as plt
-import seaborn as sns
-
-# Add this code under the existing one in your Streamlit app
-
 # Get the data for temperature and precipitation for the selected week
-selected_dates = filtered_data_week_reset['Date'].apply(pd.to_datetime)
-filtered_weather_data = weer_data_2021[weer_data_2021['Date'].isin(selected_dates)]
+# Ensure that 'Date' column is in datetime format for filtering
+filtered_weather_data = weer_data_2021[weer_data_2021['Date'].isin(filtered_data_week_reset['Date'])]
 
 # Set the plot size and style
 plt.figure(figsize=(10, 6))
@@ -28,4 +23,3 @@ plt.legend()
 
 # Display the plot in Streamlit
 st.pyplot(plt)
-
