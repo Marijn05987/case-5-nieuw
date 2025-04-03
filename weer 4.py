@@ -316,7 +316,6 @@ st.pyplot(fig)
 
 
 
-
 # Selectbox om grafieken te kiezen
 grafiek_keuze = st.selectbox('Kies welke grafiek je wilt zien:', 
                              ['Aantal Verhuurde Fietsen per Dag', 
@@ -329,37 +328,62 @@ if grafiek_keuze == 'Aantal Verhuurde Fietsen per Dag':
     fig, ax = plt.subplots(figsize=(10, 6))
     sns.lineplot(data=filtered_data_week_reset, x='Date', y='Aantal Verhuurde Fietsen', marker='o', ax=ax, color='blue')
     ax.set_xlabel("Datum")
-    ax.set_ylabel("Aantal Verhuurde Fietsen")
+    ax.set_ylabel("Aantal Verhuurde Fietsen", color='blue')
     ax.set_title(f"Aantal Verhuurde Fietsen per Dag in Week {week_nummer}")
+    ax.tick_params(axis='y', labelcolor='blue')
     plt.xticks(rotation=45)
     st.pyplot(fig)
 
 elif grafiek_keuze == 'Gemiddelde Temperatuur per Dag':
-    fig, ax = plt.subplots(figsize=(10, 6))
-    sns.lineplot(data=filtered_data_week_reset, x='Date', y='Gemiddelde Temperatuur (°C)', marker='o', ax=ax, color='orange')
-    sns.lineplot(data=filtered_data_week_reset, x='Date', y='Aantal Verhuurde Fietsen', marker='o', ax=ax, color='blue', label='Aantal Verhuurde Fietsen')  # Voeg Aantal Verhuurde Fietsen toe
-    ax.set_xlabel("Datum")
-    ax.set_ylabel("Gemiddelde Temperatuur (°C)")
-    ax.set_title(f"Gemiddelde Temperatuur per Dag in Week {week_nummer}")
+    fig, ax1 = plt.subplots(figsize=(10, 6))
+    # Plot voor Gemiddelde Temperatuur aan de linker y-as
+    sns.lineplot(data=filtered_data_week_reset, x='Date', y='Gemiddelde Temperatuur (°C)', marker='o', ax=ax1, color='orange')
+    ax1.set_xlabel("Datum")
+    ax1.set_ylabel("Gemiddelde Temperatuur (°C)", color='orange')
+    ax1.tick_params(axis='y', labelcolor='orange')
+
+    # Maak een tweede y-as voor Aantal Verhuurde Fietsen
+    ax2 = ax1.twinx()
+    sns.lineplot(data=filtered_data_week_reset, x='Date', y='Aantal Verhuurde Fietsen', marker='o', ax=ax2, color='blue', label='Aantal Verhuurde Fietsen')
+    ax2.set_ylabel("Aantal Verhuurde Fietsen", color='blue')
+    ax2.tick_params(axis='y', labelcolor='blue')
+
+    ax1.set_title(f"Gemiddelde Temperatuur en Aantal Verhuurde Fietsen per Dag in Week {week_nummer}")
     plt.xticks(rotation=45)
     st.pyplot(fig)
 
 elif grafiek_keuze == 'Neerslag per Dag':
-    fig, ax = plt.subplots(figsize=(10, 6))
-    sns.barplot(data=filtered_data_week_reset, x='Date', y='Neerslag (mm)', ax=ax, color='blue')
-    sns.lineplot(data=filtered_data_week_reset, x='Date', y='Aantal Verhuurde Fietsen', marker='o', ax=ax, color='red', label='Aantal Verhuurde Fietsen')  # Voeg Aantal Verhuurde Fietsen toe
-    ax.set_xlabel("Datum")
-    ax.set_ylabel("Neerslag (mm)")
-    ax.set_title(f"Neerslag per Dag in Week {week_nummer}")
+    fig, ax1 = plt.subplots(figsize=(10, 6))
+    # Plot voor Neerslag aan de linker y-as
+    sns.barplot(data=filtered_data_week_reset, x='Date', y='Neerslag (mm)', ax=ax1, color='blue')
+    ax1.set_xlabel("Datum")
+    ax1.set_ylabel("Neerslag (mm)", color='blue')
+    ax1.tick_params(axis='y', labelcolor='blue')
+
+    # Maak een tweede y-as voor Aantal Verhuurde Fietsen
+    ax2 = ax1.twinx()
+    sns.lineplot(data=filtered_data_week_reset, x='Date', y='Aantal Verhuurde Fietsen', marker='o', ax=ax2, color='red', label='Aantal Verhuurde Fietsen')
+    ax2.set_ylabel("Aantal Verhuurde Fietsen", color='red')
+    ax2.tick_params(axis='y', labelcolor='red')
+
+    ax1.set_title(f"Neerslag en Aantal Verhuurde Fietsen per Dag in Week {week_nummer}")
     plt.xticks(rotation=45)
     st.pyplot(fig)
 
 elif grafiek_keuze == 'Sneeuwval per Dag':
-    fig, ax = plt.subplots(figsize=(10, 6))
-    sns.lineplot(data=filtered_data_week_reset, x='Date', y='Sneeuwval (cm)', marker='o', ax=ax, color='green')
-    sns.lineplot(data=filtered_data_week_reset, x='Date', y='Aantal Verhuurde Fietsen', marker='o', ax=ax, color='blue', label='Aantal Verhuurde Fietsen')  # Voeg Aantal Verhuurde Fietsen toe
-    ax.set_xlabel("Datum")
-    ax.set_ylabel("Sneeuwval (cm)")
-    ax.set_title(f"Sneeuwval per Dag in Week {week_nummer}")
+    fig, ax1 = plt.subplots(figsize=(10, 6))
+    # Plot voor Sneeuwval aan de linker y-as
+    sns.lineplot(data=filtered_data_week_reset, x='Date', y='Sneeuwval (cm)', marker='o', ax=ax1, color='green')
+    ax1.set_xlabel("Datum")
+    ax1.set_ylabel("Sneeuwval (cm)", color='green')
+    ax1.tick_params(axis='y', labelcolor='green')
+
+    # Maak een tweede y-as voor Aantal Verhuurde Fietsen
+    ax2 = ax1.twinx()
+    sns.lineplot(data=filtered_data_week_reset, x='Date', y='Aantal Verhuurde Fietsen', marker='o', ax=ax2, color='blue', label='Aantal Verhuurde Fietsen')
+    ax2.set_ylabel("Aantal Verhuurde Fietsen", color='blue')
+    ax2.tick_params(axis='y', labelcolor='blue')
+
+    ax1.set_title(f"Sneeuwval en Aantal Verhuurde Fietsen per Dag in Week {week_nummer}")
     plt.xticks(rotation=45)
     st.pyplot(fig)
