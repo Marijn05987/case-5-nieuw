@@ -323,16 +323,33 @@ st.pyplot(fig)
 fiets_rentals = pd.read_csv('fietsdata2021_rentals_by_day.csv')
 
 # Ensure 'Day' column in fietsdata is in datetime format
-fiets_rentals['Day'] = pd.to_datetime(fiets_rentals['Day'])
+fiets_rentals['Day'] = pd.to_datetime(fiets_rentals['Day'], errors='coerce')
 
 # Ensure 'Date' column in filtered_weather_data is also in datetime format
 filtered_weather_data['Date'] = pd.to_datetime(filtered_weather_data['Date'], errors='coerce')
 
-# Check if there are any rows with invalid 'Date' values after conversion
+# Check for any missing or NaT values in 'Date' or 'Day' columns
+if filtered_weather_data['Date'].isna().any():
+    st.warning("There are missing dates in the weather data.")
+    print("Missing 'Date' values in weather data:", filtered_weather_data[filtered_weather_data['Date'].isna()])
+    
+if fiets_rentals['Day'].isna().any():
+    st.warning("There are missing dates in the bike rental data.")
+    print("Missing 'Day' values in bike rental data:", fiets_rentals[fiets_rentals['Day'].isna()])
+
+# Print the unique values in 'Date' and 'Day' for comparison
+st.write("Unique dates in weather data:", filtered_weather_data['Date'].unique())
+st.write("Unique dates in bike rental data:", fiets_rentals['Day'].unique())
+
+# Filter out rows with invalid 'Date' or 'Day'
 filtered_weather_data = filtered_weather_data[filtered_weather_data['Date'].notna()]
+fiets_rentals = fiets_rentals[fiets_rentals['Day'].notna()]
 
 # Merge the weather data with the bike rental data based on the 'Date' and 'Day' columns
 merged_data = pd.merge(filtered_weather_data, fiets_rentals[['Day', 'Total Rentals']], left_on='Date', right_on='Day', how='left')
+
+# Check the merged data to ensure the merge was successful
+st.write("Merged data head:", merged_data.head())
 
 # Create a selectbox for choosing the type of graph
 graph_type = st.selectbox(
