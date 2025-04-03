@@ -314,119 +314,52 @@ ax.text(0.05, 0.9, equation, transform=ax.transAxes, fontsize=12, color="red")
 # Toon de plot in Streamlit
 st.pyplot(fig)
 
-import streamlit as st
-import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
-import statsmodels.api as sm
 
-with st.beta_expander("🌤️ Weerdata voor 2021"):
-    # Zet de 'Unnamed: 0' kolom om naar een datetime-object
-    weer_data = pd.read_csv('weather_london.csv')
-    weer_data['Date'] = pd.to_datetime(weer_data['Unnamed: 0'], format='%Y-%m-%d')
 
-    # Zet de datum in de fietsdata correct
-    fiets_rentals = pd.read_csv('fietsdata2021_rentals_by_day.csv')
-    fiets_rentals["Day"] = pd.to_datetime(fiets_rentals["Day"])
 
-    # Merge de weerdata en fietsdata op datum
-    weer_data = pd.merge(weer_data, fiets_rentals[['Day', 'Total Rentals']], left_on='Date', right_on='Day', how='left')
 
-    # Filter de data voor 2021
-    weer_data_2021 = weer_data[weer_data['Date'].dt.year == 2021]
+# Selectbox om grafieken te kiezen
+grafiek_keuze = st.selectbox('Kies welke grafiek je wilt zien:', 
+                             ['Aantal Verhuurde Fietsen per Dag', 
+                              'Gemiddelde Temperatuur per Dag', 
+                              'Neerslag per Dag', 
+                              'Sneeuwval per Dag'])
 
-    # Vertaling van kolomnamen
-    column_mapping = {
-        'Total Rentals': 'Aantal Verhuurde Fietsen',
-        'tavg': 'Gemiddelde Temperatuur (°C)',
-        'tmin': 'Minimale Temperatuur (°C)',
-        'tmax': 'Maximale Temperatuur (°C)',
-        'prcp': 'Neerslag (mm)',
-        'snow': 'Sneeuwval (cm)',
-        'wdir': 'Windrichting (°)',
-        'wspd': 'Windsnelheid (m/s)',
-        'wpgt': 'Windstoten (m/s)',
-        'pres': 'Luchtdruk (hPa)',
-        'tsun': 'Zonduur (uren)'
-    }
+# Toon de gekozen grafiek
+if grafiek_keuze == 'Aantal Verhuurde Fietsen per Dag':
+    fig, ax = plt.subplots(figsize=(10, 6))
+    sns.lineplot(data=filtered_data_week_reset, x='Date', y='Aantal Verhuurde Fietsen', marker='o', ax=ax)
+    ax.set_xlabel("Datum")
+    ax.set_ylabel("Aantal Verhuurde Fietsen")
+    ax.set_title(f"Aantal Verhuurde Fietsen per Dag in Week {week_nummer}")
+    plt.xticks(rotation=45)
+    st.pyplot(fig)
 
-    # Kalender om een specifieke datum te kiezen
-    datum = st.date_input("*Selecteer een datum in 2021*", min_value=pd.to_datetime("2021-01-01"), max_value=pd.to_datetime("2021-12-31"))
+elif grafiek_keuze == 'Gemiddelde Temperatuur per Dag':
+    fig, ax = plt.subplots(figsize=(10, 6))
+    sns.lineplot(data=filtered_data_week_reset, x='Date', y='Gemiddelde Temperatuur (°C)', marker='o', ax=ax, color='orange')
+    ax.set_xlabel("Datum")
+    ax.set_ylabel("Gemiddelde Temperatuur (°C)")
+    ax.set_title(f"Gemiddelde Temperatuur per Dag in Week {week_nummer}")
+    plt.xticks(rotation=45)
+    st.pyplot(fig)
 
-    # Haal het weeknummer van de geselecteerde datum op
-    week_nummer = datum.isocalendar()[1]
+elif grafiek_keuze == 'Neerslag per Dag':
+    fig, ax = plt.subplots(figsize=(10, 6))
+    sns.barplot(data=filtered_data_week_reset, x='Date', y='Neerslag (mm)', ax=ax, color='blue')
+    ax.set_xlabel("Datum")
+    ax.set_ylabel("Neerslag (mm)")
+    ax.set_title(f"Neerslag per Dag in Week {week_nummer}")
+    plt.xticks(rotation=45)
+    st.pyplot(fig)
 
-    # Filter de data voor de geselecteerde week
-    weer_data_2021['Week'] = weer_data_2021['Date'].dt.isocalendar().week
-    filtered_data_week = weer_data_2021[weer_data_2021['Week'] == week_nummer]
+elif grafiek_keuze == 'Sneeuwval per Dag':
+    fig, ax = plt.subplots(figsize=(10, 6))
+    sns.lineplot(data=filtered_data_week_reset, x='Date', y='Sneeuwval (cm)', marker='o', ax=ax, color='green')
+    ax.set_xlabel("Datum")
+    ax.set_ylabel("Sneeuwval (cm)")
+    ax.set_title(f"Sneeuwval per Dag in Week {week_nummer}")
+    plt.xticks(rotation=45)
+    st.pyplot(fig)
 
-    # Toon de gegevens voor de geselecteerde week
-    if not filtered_data_week.empty:
-        st.write(f"Gegevens voor week {week_nummer} van 2021 (rondom {datum.strftime('%d-%m-%Y')}):")
-
-        # Vervang kolomnamen met de vertaalde versie
-        filtered_data_week = filtered_data_week.rename(columns=column_mapping)
-
-        # Reset de index en voeg de aangepaste index toe die begint bij 1
-        filtered_data_week_reset = filtered_data_week.reset_index(drop=True)
-        filtered_data_week_reset.index = filtered_data_week_reset.index + 1  # Start index vanaf 1
-
-        # Datum formatteren
-        filtered_data_week_reset['Date'] = filtered_data_week_reset['Date'].dt.strftime('%d %B %Y')
-
-        # Kolommen herschikken om "Aantal Verhuurde Fietsen" direct na de datum te zetten
-        kolommen = ['Date', 'Aantal Verhuurde Fietsen', 'Gemiddelde Temperatuur (°C)', 'Minimale Temperatuur (°C)', 
-                    'Maximale Temperatuur (°C)', 'Neerslag (mm)', 'Sneeuwval (cm)', 'Windrichting (°)', 
-                    'Windsnelheid (m/s)', 'Windstoten (m/s)', 'Luchtdruk (hPa)', 'Zonduur (uren)']
-        
-        st.dataframe(filtered_data_week_reset[kolommen])
-
-        # Checkboxen voor grafieken
-        show_rentals = st.checkbox('Aantal Verhuurde Fietsen per Dag', value=True)
-        show_temp = st.checkbox('Gemiddelde Temperatuur per Dag', value=True)
-        show_precip = st.checkbox('Neerslag per Dag', value=True)
-        show_snow = st.checkbox('Sneeuwval per Dag', value=True)
-
-        # Plot: Aantal Verhuurde Fietsen per dag
-        if show_rentals:
-            fig, ax = plt.subplots(figsize=(10, 6))
-            sns.lineplot(data=filtered_data_week_reset, x='Date', y='Aantal Verhuurde Fietsen', marker='o', ax=ax)
-            ax.set_xlabel("Datum")
-            ax.set_ylabel("Aantal Verhuurde Fietsen")
-            ax.set_title(f"Aantal Verhuurde Fietsen per Dag in Week {week_nummer}")
-            plt.xticks(rotation=45)
-            st.pyplot(fig)
-
-        # Plot: Gemiddelde Temperatuur per dag
-        if show_temp:
-            fig, ax = plt.subplots(figsize=(10, 6))
-            sns.lineplot(data=filtered_data_week_reset, x='Date', y='Gemiddelde Temperatuur (°C)', marker='o', ax=ax, color='orange')
-            ax.set_xlabel("Datum")
-            ax.set_ylabel("Gemiddelde Temperatuur (°C)")
-            ax.set_title(f"Gemiddelde Temperatuur per Dag in Week {week_nummer}")
-            plt.xticks(rotation=45)
-            st.pyplot(fig)
-
-        # Plot: Neerslag per dag
-        if show_precip:
-            fig, ax = plt.subplots(figsize=(10, 6))
-            sns.barplot(data=filtered_data_week_reset, x='Date', y='Neerslag (mm)', ax=ax, color='blue')
-            ax.set_xlabel("Datum")
-            ax.set_ylabel("Neerslag (mm)")
-            ax.set_title(f"Neerslag per Dag in Week {week_nummer}")
-            plt.xticks(rotation=45)
-            st.pyplot(fig)
-
-        # Plot: Sneeuwval per dag
-        if show_snow:
-            fig, ax = plt.subplots(figsize=(10, 6))
-            sns.lineplot(data=filtered_data_week_reset, x='Date', y='Sneeuwval (cm)', marker='o', ax=ax, color='green')
-            ax.set_xlabel("Datum")
-            ax.set_ylabel("Sneeuwval (cm)")
-            ax.set_title(f"Sneeuwval per Dag in Week {week_nummer}")
-            plt.xticks(rotation=45)
-            st.pyplot(fig)
-
-    else:
-        st.write(f"Geen gegevens gevonden voor week {week_nummer} van 2021.")
 
