@@ -313,13 +313,6 @@ ax.set_title(f"Regressie: {weerfactor} vs. Fietsverhuur\nR² = {r_squared:.2f}")
 ax.text(0.05, 0.9, equation, transform=ax.transAxes, fontsize=12, color="red")
 
 # Add this code under the existing one in your Streamlit app
-
-# Create a selectbox for choosing the type of graph
-graph_type = st.selectbox(
-    "Kies de grafiek die je wilt zien:",
-    ["Temperatuur", "Neerslag", "Temperatuur en Neerslag"]
-)
-
 # Get the data for temperature and precipitation for the selected week
 # Ensure that 'Date' column is in datetime format for filtering
 filtered_weather_data = weer_data_2021[weer_data_2021['Date'].isin(filtered_data_week_reset['Date'])]
@@ -328,23 +321,16 @@ filtered_weather_data = weer_data_2021[weer_data_2021['Date'].isin(filtered_data
 plt.figure(figsize=(10, 6))
 sns.set(style="whitegrid")
 
-# Plot based on user selection
-if graph_type == "Temperatuur":
-    plt.plot(filtered_weather_data['Date'], filtered_weather_data['tavg'], label="Gemiddelde Temperatuur (°C)", marker='o')
-    plt.plot(filtered_weather_data['Date'], filtered_weather_data['tmin'], label="Minimale Temperatuur (°C)", marker='x')
-    plt.plot(filtered_weather_data['Date'], filtered_weather_data['tmax'], label="Maximale Temperatuur (°C)", marker='s')
+# Plot temperature data
+plt.plot(filtered_weather_data['Date'], filtered_weather_data['tavg'], label="Gemiddelde Temperatuur (°C)", marker='o')
+plt.plot(filtered_weather_data['Date'], filtered_weather_data['tmin'], label="Minimale Temperatuur (°C)", marker='x')
+plt.plot(filtered_weather_data['Date'], filtered_weather_data['tmax'], label="Maximale Temperatuur (°C)", marker='s')
 
-elif graph_type == "Neerslag":
-    plt.bar(filtered_weather_data['Date'], filtered_weather_data['prcp'], label="Neerslag (mm)", color='blue', alpha=0.3)
-
-else:  # "Temperatuur en Neerslag"
-    plt.plot(filtered_weather_data['Date'], filtered_weather_data['tavg'], label="Gemiddelde Temperatuur (°C)", marker='o')
-    plt.plot(filtered_weather_data['Date'], filtered_weather_data['tmin'], label="Minimale Temperatuur (°C)", marker='x')
-    plt.plot(filtered_weather_data['Date'], filtered_weather_data['tmax'], label="Maximale Temperatuur (°C)", marker='s')
-    plt.bar(filtered_weather_data['Date'], filtered_weather_data['prcp'], label="Neerslag (mm)", color='blue', alpha=0.3)
+# Plot precipitation data
+plt.bar(filtered_weather_data['Date'], filtered_weather_data['prcp'], label="Neerslag (mm)", color='blue', alpha=0.3)
 
 # Customize the plot
-plt.title(f"{graph_type} voor Week {week_nummer} van 2021")
+plt.title(f"Temperatuur en Neerslag voor Week {week_nummer} van 2021")
 plt.xlabel("Datum")
 plt.ylabel("Waarde")
 plt.xticks(rotation=45)
