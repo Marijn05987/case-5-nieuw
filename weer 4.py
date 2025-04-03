@@ -273,126 +273,88 @@ with tab3:
     else:
         st.write(f"Geen gegevens gevonden voor week {week_nummer} van 2021.")
 
-    # Data inladen
-    fiets_rentals = pd.read_csv('fietsdata2021_rentals_by_day.csv')
-    weer_data = pd.read_csv('weather_london.csv')
+        # Data inladen
+fiets_rentals = pd.read_csv('fietsdata2021_rentals_by_day.csv')
+weer_data = pd.read_csv('weather_london.csv')
 
-    # Zorg ervoor dat de datums in datetime-formaat staan
-    fiets_rentals["Day"] = pd.to_datetime(fiets_rentals["Day"])
-    weer_data["Date"] = pd.to_datetime(weer_data['Unnamed: 0'])  # Zet de juiste kolomnaam om
+# Zorg ervoor dat de datums in datetime-formaat staan
+fiets_rentals["Day"] = pd.to_datetime(fiets_rentals["Day"])
+weer_data["Date"] = pd.to_datetime(weer_data["Unnamed: 0"])  # Zet de juiste kolomnaam om
 
-    # Merge de datasets op datum
-    combined_df = pd.merge(fiets_rentals, weer_data, left_on="Day", right_on="Date", how="inner")
+# Merge de datasets op datum
+combined_df = pd.merge(fiets_rentals, weer_data, left_on="Day", right_on="Date", how="inner")
 
-    # Verwijder de dubbele datumkolom (we houden "Day")
-    combined_df.drop(columns=["Date"], inplace=True)
+# Verwijder de dubbele datumkolom (we houden "Day")
+combined_df.drop(columns=["Date"], inplace=True)
 
-    # Streamlit-app titel
-    st.title("Regressieanalyse: Fietsverhuur en Weer")
+# Streamlit-app titel
+st.title("Regressieanalyse: Fietsverhuur en Weer")
 
-    # Selecteer een weerfactor voor de regressie
-    weerfactor = st.selectbox("Kies een weerfactor:", ["tavg", "tmin", "tmax", "prcp", "wspd"])
+# Selecteer een weerfactor voor de regressie
+weerfactor = st.selectbox("Kies een weerfactor:", ["tavg", "tmin", "tmax", "prcp", "wspd"])
 
-    # X en Y variabelen
-    x = combined_df[weerfactor]  # Weerfactor (bijv. temperatuur)
-    y = combined_df["Total Rentals"]  # Aantal fietsverhuringen
+# X en Y variabelen
+x = combined_df[weerfactor]  # Weerfactor (bijv. temperatuur)
+y = combined_df["Total Rentals"]  # Aantal fietsverhuringen
 
-    # Regressiemodel maken
-    x_with_constant = sm.add_constant(x)  # Constante toevoegen voor de regressie
-    model = sm.OLS(y, x_with_constant).fit()
-    r_squared = model.rsquared  # R²-waarde van de regressie
-    equation = f"y = {model.params[1]:.2f}x + {model.params[0]:.2f}"  # Regressievergelijking
+# Regressiemodel maken
+x_with_constant = sm.add_constant(x)  # Constante toevoegen voor de regressie
+model = sm.OLS(y, x_with_constant).fit()
+r_squared = model.rsquared  # R²-waarde van de regressie
+equation = f"y = {model.params[1]:.2f}x + {model.params[0]:.2f}"  # Regressievergelijking
 
-    # Plot maken met seaborn
-    fig, ax = plt.subplots(figsize=(8, 5))
-    sns.regplot(x=x, y=y, line_kws={'color': 'red'}, scatter_kws={'alpha': 0.5}, ax=ax)
-    ax.set_xlabel(weerfactor)
-    ax.set_ylabel("Aantal Fietsverhuringen")
-    ax.set_title(f"Regressie: {weerfactor} vs. Fietsverhuur\nR² = {r_squared:.2f}")
-    ax.text(0.05, 0.9, equation, transform=ax.transAxes, fontsize=12, color="red")
+# Plot maken met seaborn
+fig, ax = plt.subplots(figsize=(8, 5))
+sns.regplot(x=x, y=y, line_kws={'color': 'red'}, scatter_kws={'alpha': 0.5}, ax=ax)
+ax.set_xlabel(weerfactor)
+ax.set_ylabel("Aantal Fietsverhuringen")
+ax.set_title(f"Regressie: {weerfactor} vs. Fietsverhuur\nR² = {r_squared:.2f}")
+ax.text(0.05, 0.9, equation, transform=ax.transAxes, fontsize=12, color="red")
 
-    # Toon de plot in Streamlit
+# Toon de plot in Streamlit
+st.pyplot(fig)
+
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Na het tonen van de tabel, kunnen we grafieken toevoegen:
+if not filtered_data_week.empty:
+    # Plot: Aantal Verhuurde Fietsen per dag
+    fig, ax = plt.subplots(figsize=(10, 6))
+    sns.lineplot(data=filtered_data_week_reset, x='Date', y='Aantal Verhuurde Fietsen', marker='o', ax=ax)
+    ax.set_xlabel("Datum")
+    ax.set_ylabel("Aantal Verhuurde Fietsen")
+    ax.set_title(f"Aantal Verhuurde Fietsen per Dag in Week {week_nummer}")
+    plt.xticks(rotation=45)
     st.pyplot(fig)
 
-    import pandas as pd
-    import matplotlib.pyplot as plt
-    import seaborn as sns
-    import streamlit as st
-
-    # Load the weather data (2000-2023)
-    weer_data = pd.read_csv('weather_london.csv')
-
-    # The weather data starts at index 7673 for 01-01-2021, so let's assign the date manually.
-    start_date = pd.to_datetime('2021-01-01')
-
-    # Create a new column 'Date' based on the index of the weather data
-    weer_data['Date'] = pd.date_range(start=start_date, periods=len(weer_data), freq='D')
-
-    # Now, filter the weather data for the year 2021
-    weer_data_2021 = weer_data[(weer_data['Date'] >= '2021-01-01') & (weer_data['Date'] <= '2021-12-31')]
-
-    # Now, filter the data for the selected week (week_nummer)
-    week_nummer = 1  # Replace this with your logic to select the week
-
-    # Calculate the start and end dates for the selected week
-    start_date = pd.to_datetime(f'2021-W{week_nummer}-1', format='%Y-W%U-%w')
-    end_date = start_date + pd.DateOffset(days=6)
-
-    # Filter the weather data for the selected week
-    filtered_weather_data = weer_data_2021[(weer_data_2021['Date'] >= start_date) & (weer_data_2021['Date'] <= end_date)]
-
-    # Load the fietsdata (bike rental data)
-    fiets_rentals = pd.read_csv('fietsdata2021_rentals_by_day.csv')
-
-    # Ensure 'Day' column in fietsdata is in datetime format
-    fiets_rentals['Day'] = pd.to_datetime(fiets_rentals['Day'])
-
-    # Merge the weather data with the bike rental data based on the 'Date' and 'Day' columns
-    merged_data = pd.merge(filtered_weather_data, fiets_rentals[['Day', 'Total Rentals']], left_on='Date', right_on='Day', how='left')
-
-    # Create a selectbox for choosing the type of graph
-    graph_type = st.selectbox(
-        "Kies de grafiek die je wilt zien:",
-        ["Temperatuur", "Neerslag", "Temperatuur en Neerslag"]
-    )
-
-    # Set the plot size and style
-    fig, ax1 = plt.subplots(figsize=(10, 6))
-    sns.set(style="whitegrid")
-
-    # Plot based on user selection
-    if graph_type == "Temperatuur":
-        # Plot the temperature lines with markers and connected lines
-        ax1.plot(merged_data['Date'], merged_data['tavg'], label="Gemiddelde Temperatuur (°C)", color='red', linestyle='-', marker='o', markersize=6)
-        ax1.plot(merged_data['Date'], merged_data['tmin'], label="Minimale Temperatuur (°C)", color='orange', linestyle='-', marker='x', markersize=6)
-        ax1.plot(merged_data['Date'], merged_data['tmax'], label="Maximale Temperatuur (°C)", color='green', linestyle='-', marker='s', markersize=6)
-
-    elif graph_type == "Neerslag":
-        # Plot the precipitation as individual bars for each day
-        ax1.bar(merged_data['Date'], merged_data['prcp'], label="Neerslag (mm)", color='blue', alpha=0.6)
-
-    else:  # "Temperatuur en Neerslag"
-        # Plot the temperature lines with markers and connected lines
-        ax1.plot(merged_data['Date'], merged_data['tavg'], label="Gemiddelde Temperatuur (°C)", color='red', linestyle='-', marker='o', markersize=6)
-        ax1.plot(merged_data['Date'], merged_data['tmin'], label="Minimale Temperatuur (°C)", color='orange', linestyle='-', marker='x', markersize=6)
-        ax1.plot(merged_data['Date'], merged_data['tmax'], label="Maximale Temperatuur (°C)", color='green', linestyle='-', marker='s', markersize=6)
-        # Plot the precipitation as individual bars for each day
-        ax1.bar(merged_data['Date'], merged_data['prcp'], label="Neerslag (mm)", color='blue', alpha=0.6)
-
-    # Set up secondary y-axis for the number of rentals
-    ax2 = ax1.twinx()
-    ax2.plot(merged_data['Date'], merged_data['Total Rentals'], label="Aantal Verhuurde Fietsen", color='purple', marker='^', linestyle='--', markersize=6)
-
-    # Customize the plot
-    ax1.set_title(f"{graph_type} en Aantal Verhuurde Fietsen voor de geselecteerde week")
-    ax1.set_xlabel("Datum")
-    ax1.set_ylabel("Weerdata (°C / mm)")
-    ax2.set_ylabel("Aantal Verhuurde Fietsen")
-    ax1.tick_params(axis='x', rotation=45)
-
-    # Legends for both y-axes
-    ax1.legend(loc="upper left")
-    ax2.legend(loc="upper right")
-
-    # Display the plot in Streamlit
+    # Plot: Gemiddelde Temperatuur per dag
+    fig, ax = plt.subplots(figsize=(10, 6))
+    sns.lineplot(data=filtered_data_week_reset, x='Date', y='Gemiddelde Temperatuur (°C)', marker='o', ax=ax, color='orange')
+    ax.set_xlabel("Datum")
+    ax.set_ylabel("Gemiddelde Temperatuur (°C)")
+    ax.set_title(f"Gemiddelde Temperatuur per Dag in Week {week_nummer}")
+    plt.xticks(rotation=45)
     st.pyplot(fig)
+
+    # Plot: Neerslag per dag
+    fig, ax = plt.subplots(figsize=(10, 6))
+    sns.barplot(data=filtered_data_week_reset, x='Date', y='Neerslag (mm)', ax=ax, color='blue')
+    ax.set_xlabel("Datum")
+    ax.set_ylabel("Neerslag (mm)")
+    ax.set_title(f"Neerslag per Dag in Week {week_nummer}")
+    plt.xticks(rotation=45)
+    st.pyplot(fig)
+
+    # Je kunt hier ook extra grafieken toevoegen voor andere weersfactoren zoals windsnelheid, zonduur, etc.
+    # Bijvoorbeeld voor de Sneeuwval:
+    fig, ax = plt.subplots(figsize=(10, 6))
+    sns.lineplot(data=filtered_data_week_reset, x='Date', y='Sneeuwval (cm)', marker='o', ax=ax, color='green')
+    ax.set_xlabel("Datum")
+    ax.set_ylabel("Sneeuwval (cm)")
+    ax.set_title(f"Sneeuwval per Dag in Week {week_nummer}")
+    plt.xticks(rotation=45)
+    st.pyplot(fig)
+
+else:
+    st.write(f"Geen gegevens gevonden voor week {week_nummer} van 2021.")
