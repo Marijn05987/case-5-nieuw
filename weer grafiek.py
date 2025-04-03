@@ -317,12 +317,7 @@ st.pyplot(fig)
 
 
 # Add this code under the existing one in your Streamlit app
-
-# Ensure that the filtered weather data is correctly defined
-# Assuming that 'filtered_data_week_reset' contains the data for the selected week
-
-# Check if 'Date' is in datetime format
-filtered_data_week_reset['Date'] = pd.to_datetime(filtered_data_week_reset['Date'], format='%d-%m-%Y')
+# Add this code under the existing one in your Streamlit app
 
 # Load the fietsdata (bike rental data)
 fiets_rentals = pd.read_csv('fietsdata2021_rentals_by_day.csv')
@@ -330,11 +325,11 @@ fiets_rentals = pd.read_csv('fietsdata2021_rentals_by_day.csv')
 # Ensure 'Day' column in fietsdata is in datetime format
 fiets_rentals['Day'] = pd.to_datetime(fiets_rentals['Day'])
 
-# Now filter the weather data to match the dates in the filtered fiets_rentals data
-filtered_weather_data = weer_data_2021[weer_data_2021['Date'].isin(filtered_data_week_reset['Date'])]
+# Filter the weather data to only include the year 2021
+weather_data_2021 = weather_data.loc[weather_data.index.year == 2021]
 
 # Merge the weather data with the bike rental data based on the 'Date' and 'Day' columns
-merged_data = pd.merge(filtered_weather_data, fiets_rentals[['Day', 'Total Rentals']], left_on='Date', right_on='Day', how='left')
+merged_data = pd.merge(weather_data_2021, fiets_rentals[['Day', 'Total Rentals']], left_index=True, right_on='Day', how='left')
 
 # Create a selectbox for choosing the type of graph
 graph_type = st.selectbox(
@@ -378,7 +373,3 @@ ax2.legend(loc="upper right")
 
 # Display the plot in Streamlit
 st.pyplot(fig)
-
-
-
-
