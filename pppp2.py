@@ -165,7 +165,7 @@ with tab2:
     st.header("🚲 Fietsverhuurstations")
 
     with st.expander("⚙ *Fiets Filteropties*", expanded=True):
-        bike_slider = st.slider("*Selecteer het minimum aantal beschikbare fietsen*", 0, 100, 0)
+        bike_slider = st.slider("*Selecteer het minimum aantal beschikbare fietsen*", 0, 61, 0)
         e_bike_checkbox = st.checkbox("Toon alleen stations met E-bikes", value=False)
 
     # Lees de fietsverhuurstations data in
@@ -192,27 +192,31 @@ with tab2:
 
     # Toon de interactieve kaart
     folium_static(m)
-# Hieronder komt de nieuwe code die je vroeg:
-     # Bereken het totaal aantal fietsen, standaard fietsen, en ebikes
+
+    # Bereken het totaal aantal fietsen, standaard fietsen, en ebikes
     total_bikes = df_cyclestations['nbBikes'].sum()
     total_standard_bikes = df_cyclestations['nbStandardBikes'].sum()
     total_ebikes = df_cyclestations['nbEBikes'].sum()
- 
-     # Bereken de percentages van de standaard fietsen en ebikes
+
+    # Bereken de percentages van de standaard fietsen en ebikes
     percentage_standard_bikes = (total_standard_bikes / total_bikes * 100) if total_bikes > 0 else 0
     percentage_ebikes = (total_ebikes / total_bikes * 100) if total_bikes > 0 else 0
- 
-     # Toont de percentages in vakjes onderaan de pagina
+
+    # Toont de percentages in vakjes onderaan de pagina
     st.write("### Percentage Fietsen")
- 
-     # Maak twee kolommen voor de percentages
+
+    # Maak twee kolommen voor de percentages
     col1, col2 = st.columns(2)
- 
+
     with col1:
+        # We laten de 'delta' parameter weg, zodat er geen pijl verschijnt
         st.metric("Standaard Fietsen", f"{total_standard_bikes} fietsen", f"{percentage_standard_bikes:.2f}%")
-     
+ 
     with col2:
+        # We laten de 'delta' parameter weg, zodat er geen pijl verschijnt
         st.metric("Elektrische Fietsen", f"{total_ebikes} fietsen", f"{percentage_ebikes:.2f}%")
+    
+
 
 with tab3:
     
