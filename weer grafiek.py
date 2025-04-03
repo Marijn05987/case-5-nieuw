@@ -316,7 +316,8 @@ ax.text(0.05, 0.9, equation, transform=ax.transAxes, fontsize=12, color="red")
 st.pyplot(fig)
 
 
-# Add this code under the existing one in your Streamlit app
+
+
 # Add this code under the existing one in your Streamlit app
 
 # Load the fietsdata (bike rental data)
@@ -328,24 +329,37 @@ fiets_rentals['Day'] = pd.to_datetime(fiets_rentals['Day'], errors='coerce')
 # Ensure 'Date' column in filtered_weather_data is also in datetime format
 filtered_weather_data['Date'] = pd.to_datetime(filtered_weather_data['Date'], errors='coerce')
 
-# Check for any missing or NaT values in 'Date' or 'Day' columns
+# Check if the 'Date' and 'Day' columns are in datetime format
+st.write("Weather data 'Date' column type:", filtered_weather_data['Date'].dtype)
+st.write("Bike rental data 'Day' column type:", fiets_rentals['Day'].dtype)
+
+# Check for any missing values in the 'Date' or 'Day' columns
 if filtered_weather_data['Date'].isna().any():
     st.warning("There are missing dates in the weather data.")
     print("Missing 'Date' values in weather data:", filtered_weather_data[filtered_weather_data['Date'].isna()])
-    
+
 if fiets_rentals['Day'].isna().any():
     st.warning("There are missing dates in the bike rental data.")
     print("Missing 'Day' values in bike rental data:", fiets_rentals[fiets_rentals['Day'].isna()])
 
-# Print the unique values in 'Date' and 'Day' for comparison
-st.write("Unique dates in weather data:", filtered_weather_data['Date'].unique())
-st.write("Unique dates in bike rental data:", fiets_rentals['Day'].unique())
+# Check if both columns are now in datetime format
+if not pd.api.types.is_datetime64_any_dtype(filtered_weather_data['Date']):
+    st.warning("'Date' column in weather data is not in datetime format.")
+    print("Weather data 'Date' column:", filtered_weather_data['Date'].head())
 
-# Filter out rows with invalid 'Date' or 'Day'
+if not pd.api.types.is_datetime64_any_dtype(fiets_rentals['Day']):
+    st.warning("'Day' column in bike rental data is not in datetime format.")
+    print("Bike rental data 'Day' column:", fiets_rentals['Day'].head())
+
+# Check the unique values in both columns to compare them
+st.write("Unique values in 'Date' from weather data:", filtered_weather_data['Date'].unique()[:10])  # Show first 10 unique dates
+st.write("Unique values in 'Day' from bike rental data:", fiets_rentals['Day'].unique()[:10])  # Show first 10 unique dates
+
+# Remove any rows with missing values in 'Date' or 'Day'
 filtered_weather_data = filtered_weather_data[filtered_weather_data['Date'].notna()]
 fiets_rentals = fiets_rentals[fiets_rentals['Day'].notna()]
 
-# Merge the weather data with the bike rental data based on the 'Date' and 'Day' columns
+# Merge the weather data with the bike rental data based on 'Date' and 'Day'
 merged_data = pd.merge(filtered_weather_data, fiets_rentals[['Day', 'Total Rentals']], left_on='Date', right_on='Day', how='left')
 
 # Check the merged data to ensure the merge was successful
