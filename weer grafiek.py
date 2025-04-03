@@ -1,7 +1,7 @@
 # Get the data for temperature and precipitation for the selected week
 
 # Ensure that 'Date' column is in datetime format for filtering
-with tab3:
+
     st.header("🌤️ Weerdata voor 2021")
 
     # Zet de 'Unnamed: 0' kolom om naar een datetime-object
