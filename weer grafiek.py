@@ -318,5 +318,60 @@ st.pyplot(fig)
 
 # Add this code under the existing one in your Streamlit app
 
+# Add this code under the existing one in your Streamlit app
+
+# Load the fietsdata (bike rental data)
+fiets_rentals = pd.read_csv('fietsdata2021_rentals_by_day.csv')
+
+# Ensure 'Day' column in fietsdata is in datetime format
+fiets_rentals['Day'] = pd.to_datetime(fiets_rentals['Day'])
+
+# Merge the weather data with the bike rental data based on the 'Date' and 'Day' columns
+merged_data = pd.merge(filtered_weather_data, fiets_rentals[['Day', 'Total Rentals']], left_on='Date', right_on='Day', how='left')
+
+# Create a selectbox for choosing the type of graph
+graph_type = st.selectbox(
+    "Kies de grafiek die je wilt zien:",
+    ["Temperatuur", "Neerslag", "Temperatuur en Neerslag"]
+)
+
+# Set the plot size and style
+fig, ax1 = plt.subplots(figsize=(10, 6))
+sns.set(style="whitegrid")
+
+# Plot based on user selection
+if graph_type == "Temperatuur":
+    ax1.plot(merged_data['Date'], merged_data['tavg'], label="Gemiddelde Temperatuur (°C)", marker='o', color='red')
+    ax1.plot(merged_data['Date'], merged_data['tmin'], label="Minimale Temperatuur (°C)", marker='x', color='orange')
+    ax1.plot(merged_data['Date'], merged_data['tmax'], label="Maximale Temperatuur (°C)", marker='s', color='green')
+
+elif graph_type == "Neerslag":
+    ax1.bar(merged_data['Date'], merged_data['prcp'], label="Neerslag (mm)", color='blue', alpha=0.3)
+
+else:  # "Temperatuur en Neerslag"
+    ax1.plot(merged_data['Date'], merged_data['tavg'], label="Gemiddelde Temperatuur (°C)", marker='o', color='red')
+    ax1.plot(merged_data['Date'], merged_data['tmin'], label="Minimale Temperatuur (°C)", marker='x', color='orange')
+    ax1.plot(merged_data['Date'], merged_data['tmax'], label="Maximale Temperatuur (°C)", marker='s', color='green')
+    ax1.bar(merged_data['Date'], merged_data['prcp'], label="Neerslag (mm)", color='blue', alpha=0.3)
+
+# Set up secondary y-axis for the number of rentals
+ax2 = ax1.twinx()
+ax2.plot(merged_data['Date'], merged_data['Total Rentals'], label="Aantal Verhuurde Fietsen", color='purple', marker='^', linestyle='--')
+
+# Customize the plot
+ax1.set_title(f"{graph_type} en Aantal Verhuurde Fietsen voor Week {week_nummer} van 2021")
+ax1.set_xlabel("Datum")
+ax1.set_ylabel("Weerdata (°C / mm)")
+ax2.set_ylabel("Aantal Verhuurde Fietsen")
+ax1.tick_params(axis='x', rotation=45)
+
+# Legends for both y-axes
+ax1.legend(loc="upper left")
+ax2.legend(loc="upper right")
+
+# Display the plot in Streamlit
+st.pyplot(fig)
+
+
 
 
