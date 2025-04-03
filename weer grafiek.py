@@ -359,7 +359,7 @@ ax2 = ax1.twinx()
 ax2.plot(merged_data['Date'], merged_data['Total Rentals'], label="Aantal Verhuurde Fietsen", color='purple', marker='^', linestyle='--')
 
 # Customize the plot
-ax1.set_title(f"{graph_type} en Aantal Verhuurde Fietsen voor Week {week_nummer} van 2021")
+ax1.set_title(f"{graph_type} en Aantal Verhuurde Fietsen voor de geselecteerde week")
 ax1.set_xlabel("Datum")
 ax1.set_ylabel("Weerdata (°C / mm)")
 ax2.set_ylabel("Aantal Verhuurde Fietsen")
@@ -371,7 +371,6 @@ ax2.legend(loc="upper right")
 
 # Display the plot in Streamlit
 st.pyplot(fig)
-
 
 
 
