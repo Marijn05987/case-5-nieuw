@@ -319,6 +319,21 @@ st.pyplot(fig)
 
 
 # Add this code under the existing one in your Streamlit app
+# Add this code under the existing one in your Streamlit app
+
+# Load the weather data (e.g. weather_london.csv)
+weather_data = pd.read_csv('weather_london.csv')
+
+# Ensure 'Date' column in weather data is in datetime format
+weather_data['Date'] = pd.to_datetime(weather_data['Date'], errors='coerce')
+
+# Filter the weather data (you can apply your own filtering logic here)
+# For example, let's assume we only want data from the year 2021
+filtered_weather_data = weather_data[weather_data['Date'].dt.year == 2021]
+
+# Check if 'Date' column is in datetime format and inspect the data
+st.write("Weather data 'Date' column type:", filtered_weather_data['Date'].dtype)
+st.write("Filtered weather data head:", filtered_weather_data.head())
 
 # Load the fietsdata (bike rental data)
 fiets_rentals = pd.read_csv('fietsdata2021_rentals_by_day.csv')
@@ -326,12 +341,9 @@ fiets_rentals = pd.read_csv('fietsdata2021_rentals_by_day.csv')
 # Ensure 'Day' column in fietsdata is in datetime format
 fiets_rentals['Day'] = pd.to_datetime(fiets_rentals['Day'], errors='coerce')
 
-# Ensure 'Date' column in filtered_weather_data is also in datetime format
-filtered_weather_data['Date'] = pd.to_datetime(filtered_weather_data['Date'], errors='coerce')
-
-# Check if the 'Date' and 'Day' columns are in datetime format
-st.write("Weather data 'Date' column type:", filtered_weather_data['Date'].dtype)
+# Check if 'Day' column is in datetime format
 st.write("Bike rental data 'Day' column type:", fiets_rentals['Day'].dtype)
+st.write("Bike rental data head:", fiets_rentals.head())
 
 # Check for any missing values in the 'Date' or 'Day' columns
 if filtered_weather_data['Date'].isna().any():
@@ -341,23 +353,6 @@ if filtered_weather_data['Date'].isna().any():
 if fiets_rentals['Day'].isna().any():
     st.warning("There are missing dates in the bike rental data.")
     print("Missing 'Day' values in bike rental data:", fiets_rentals[fiets_rentals['Day'].isna()])
-
-# Check if both columns are now in datetime format
-if not pd.api.types.is_datetime64_any_dtype(filtered_weather_data['Date']):
-    st.warning("'Date' column in weather data is not in datetime format.")
-    print("Weather data 'Date' column:", filtered_weather_data['Date'].head())
-
-if not pd.api.types.is_datetime64_any_dtype(fiets_rentals['Day']):
-    st.warning("'Day' column in bike rental data is not in datetime format.")
-    print("Bike rental data 'Day' column:", fiets_rentals['Day'].head())
-
-# Check the unique values in both columns to compare them
-st.write("Unique values in 'Date' from weather data:", filtered_weather_data['Date'].unique()[:10])  # Show first 10 unique dates
-st.write("Unique values in 'Day' from bike rental data:", fiets_rentals['Day'].unique()[:10])  # Show first 10 unique dates
-
-# Remove any rows with missing values in 'Date' or 'Day'
-filtered_weather_data = filtered_weather_data[filtered_weather_data['Date'].notna()]
-fiets_rentals = fiets_rentals[fiets_rentals['Day'].notna()]
 
 # Merge the weather data with the bike rental data based on 'Date' and 'Day'
 merged_data = pd.merge(filtered_weather_data, fiets_rentals[['Day', 'Total Rentals']], left_on='Date', right_on='Day', how='left')
@@ -407,3 +402,4 @@ ax2.legend(loc="upper right")
 
 # Display the plot in Streamlit
 st.pyplot(fig)
+
