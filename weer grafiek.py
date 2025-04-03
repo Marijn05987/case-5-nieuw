@@ -318,20 +318,25 @@ st.pyplot(fig)
 
 
 
-# Add this code under the existing one in your Streamlit app
-# Load the weather data for 2021 (ensure it's the correct file path)
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+import streamlit as st
+
+# Load the weather data for 2021
 weer_data_2021 = pd.read_csv('weather_london.csv')
 
 # Ensure 'Date' column in the weather data is in datetime format
 weer_data_2021['Date'] = pd.to_datetime(weer_data_2021['Date'])
 
-# Assuming you already have a week number (week_nummer) defined in your Streamlit app.
-# Example: Filter for week 1 (you can adjust this as needed)
-week_nummer = 1  # Example week number; change as per your selection logic
+# Set your week number dynamically or statically here
+week_nummer = 1  # Replace this with your logic to select the week
+
+# Calculate the start and end dates for the selected week
 start_date = pd.to_datetime(f'2021-W{week_nummer}-1', format='%Y-W%U-%w')
 end_date = start_date + pd.DateOffset(days=6)
 
-# Filter the weather data for the selected week
+# Filter the weather data for the selected week (filtered_weather_data)
 filtered_weather_data = weer_data_2021[(weer_data_2021['Date'] >= start_date) & (weer_data_2021['Date'] <= end_date)]
 
 # Load the fietsdata (bike rental data)
@@ -341,6 +346,7 @@ fiets_rentals = pd.read_csv('fietsdata2021_rentals_by_day.csv')
 fiets_rentals['Day'] = pd.to_datetime(fiets_rentals['Day'])
 
 # Merge the weather data with the bike rental data based on the 'Date' and 'Day' columns
+# Note: 'Date' from weather data and 'Day' from bike rental data should match
 merged_data = pd.merge(filtered_weather_data, fiets_rentals[['Day', 'Total Rentals']], left_on='Date', right_on='Day', how='left')
 
 # Create a selectbox for choosing the type of graph
@@ -373,7 +379,7 @@ ax2 = ax1.twinx()
 ax2.plot(merged_data['Date'], merged_data['Total Rentals'], label="Aantal Verhuurde Fietsen", color='purple', marker='^', linestyle='--')
 
 # Customize the plot
-ax1.set_title(f"{graph_type} en Aantal Verhuurde Fietsen voor Week {week_nummer} van 2021")
+ax1.set_title(f"{graph_type} en Aantal Verhuurde Fietsen voor de geselecteerde week")
 ax1.set_xlabel("Datum")
 ax1.set_ylabel("Weerdata (°C / mm)")
 ax2.set_ylabel("Aantal Verhuurde Fietsen")
