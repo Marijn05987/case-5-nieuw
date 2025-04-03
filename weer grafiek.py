@@ -325,11 +325,18 @@ fiets_rentals = pd.read_csv('fietsdata2021_rentals_by_day.csv')
 # Ensure 'Day' column in fietsdata is in datetime format
 fiets_rentals['Day'] = pd.to_datetime(fiets_rentals['Day'])
 
-# Filter the weather data to only include the year 2021
-weather_data_2021 = weather_data.loc[weather_data.index.year == 2021]
-
 # Merge the weather data with the bike rental data based on the 'Date' and 'Day' columns
-merged_data = pd.merge(weather_data_2021, fiets_rentals[['Day', 'Total Rentals']], left_index=True, right_on='Day', how='left')
+merged_data = pd.merge(filtered_weather_data, fiets_rentals[['Day', 'Total Rentals']], left_on='Date', right_on='Day', how='left')
+
+# Load the bike stations data (if it's not already loaded)
+df_cyclestations = pd.read_csv('your_bike_stations_file.csv')  # Replace with your actual file path
+
+# Ensure 'installDate' is numeric and filter out invalid data
+df_cyclestations['installDate'] = pd.to_numeric(df_cyclestations['installDate'], errors='coerce')
+df_cyclestations = df_cyclestations[df_cyclestations['installDate'].notna()]
+
+# Convert 'installDate' to datetime (milliseconds format)
+df_cyclestations['installDateFormatted'] = pd.to_datetime(df_cyclestations['installDate'], unit='ms', errors='coerce').dt.strftime('%d-%m-%Y')
 
 # Create a selectbox for choosing the type of graph
 graph_type = st.selectbox(
