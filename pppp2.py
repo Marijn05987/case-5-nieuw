@@ -192,7 +192,7 @@ with tab2:
 
     # Toon de interactieve kaart
     folium_static(m)
-        # Hieronder komt de nieuwe code die je vroeg:
+# Hieronder komt de nieuwe code die je vroeg:
      # Bereken het totaal aantal fietsen, standaard fietsen, en ebikes
     total_bikes = df_cyclestations['nbBikes'].sum()
     total_standard_bikes = df_cyclestations['nbStandardBikes'].sum()
@@ -213,7 +213,6 @@ with tab2:
      
     with col2:
         st.metric("Elektrische Fietsen", f"{total_ebikes} fietsen", f"{percentage_ebikes:.2f}%")
- 
 
 with tab3:
     
