@@ -314,7 +314,6 @@ ax.text(0.05, 0.9, equation, transform=ax.transAxes, fontsize=12, color="red")
 # Toon de plot in Streamlit
 st.pyplot(fig)
 
-
 # Selectbox om grafieken te kiezen
 grafiek_keuze = st.selectbox('Kies welke grafiek je wilt zien:', 
                              ['Aantal Verhuurde Fietsen per Dag', 
@@ -347,16 +346,16 @@ elif grafiek_keuze == 'Gemiddelde Temperatuur per Dag':
     ax1.set_ylabel("Gemiddelde Temperatuur (°C)", color='orange')
     ax1.tick_params(axis='y', labelcolor='orange')
 
+    # Stel de limieten van de y-as voor Temperatuur in zodat er altijd 2 extra ruimte is
+    min_temp = filtered_data_week_reset['Gemiddelde Temperatuur (°C)'].min()
+    max_temp = filtered_data_week_reset['Gemiddelde Temperatuur (°C)'].max()
+    ax1.set_ylim(min_temp - 2, max_temp + 2)  # 2 extra ruimte onder en boven de data
+
     # Maak een tweede y-as voor Aantal Verhuurde Fietsen
     ax2 = ax1.twinx()
     sns.lineplot(data=filtered_data_week_reset, x='Date', y='Aantal Verhuurde Fietsen', marker='o', ax=ax2, color='blue', label='Aantal Verhuurde Fietsen')
     ax2.set_ylabel("Aantal Verhuurde Fietsen", color='blue')
     ax2.tick_params(axis='y', labelcolor='blue')
-
-    # Stel de limieten van de y-as voor Aantal Verhuurde Fietsen in zodat er altijd 2000 extra ruimte is
-    min_fietsen = filtered_data_week_reset['Aantal Verhuurde Fietsen'].min()
-    max_fietsen = filtered_data_week_reset['Aantal Verhuurde Fietsen'].max()
-    ax2.set_ylim(min_fietsen - 2000, max_fietsen + 2000)  # 2000 extra ruimte onder en boven de data
 
     ax1.set_title(f"Gemiddelde Temperatuur en Aantal Verhuurde Fietsen per Dag in Week {week_nummer}")
     plt.xticks(rotation=45)
@@ -370,16 +369,16 @@ elif grafiek_keuze == 'Neerslag per Dag':
     ax1.set_ylabel("Neerslag (mm)", color='blue')
     ax1.tick_params(axis='y', labelcolor='blue')
 
+    # Stel de limieten van de y-as voor Neerslag in zodat er altijd 0.5 extra ruimte is
+    min_neerslag = filtered_data_week_reset['Neerslag (mm)'].min()
+    max_neerslag = filtered_data_week_reset['Neerslag (mm)'].max()
+    ax1.set_ylim(min_neerslag - 0.5, max_neerslag + 0.5)  # 0.5 extra ruimte onder en boven de data
+
     # Maak een tweede y-as voor Aantal Verhuurde Fietsen
     ax2 = ax1.twinx()
     sns.lineplot(data=filtered_data_week_reset, x='Date', y='Aantal Verhuurde Fietsen', marker='o', ax=ax2, color='red', label='Aantal Verhuurde Fietsen')
     ax2.set_ylabel("Aantal Verhuurde Fietsen", color='red')
     ax2.tick_params(axis='y', labelcolor='red')
-
-    # Stel de limieten van de y-as voor Aantal Verhuurde Fietsen in zodat er altijd 2000 extra ruimte is
-    min_fietsen = filtered_data_week_reset['Aantal Verhuurde Fietsen'].min()
-    max_fietsen = filtered_data_week_reset['Aantal Verhuurde Fietsen'].max()
-    ax2.set_ylim(min_fietsen - 2000, max_fietsen + 2000)  # 2000 extra ruimte onder en boven de data
 
     ax1.set_title(f"Neerslag en Aantal Verhuurde Fietsen per Dag in Week {week_nummer}")
     plt.xticks(rotation=45)
@@ -407,4 +406,3 @@ elif grafiek_keuze == 'Sneeuwval per Dag':
     ax1.set_title(f"Sneeuwval en Aantal Verhuurde Fietsen per Dag in Week {week_nummer}")
     plt.xticks(rotation=45)
     st.pyplot(fig)
-
