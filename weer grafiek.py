@@ -323,20 +323,23 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import streamlit as st
 
-# Load the weather data for 2021
+# Load the weather data (2000-2023)
 weer_data_2021 = pd.read_csv('weather_london.csv')
 
-# Ensure 'Date' column in the weather data is in datetime format
-weer_data_2021['Date'] = pd.to_datetime(weer_data_2021['Date'])
+# Make sure the index is correct, and filter rows for the year 2021 (from index 7673)
+weer_data_2021['Date'] = pd.to_datetime(weer_data_2021['Date'])  # Assuming your 'Date' column exists and needs conversion
 
-# Set your week number dynamically or statically here
+# Filtering for the year 2021 only by using index from 7673 onward
+weer_data_2021 = weer_data_2021[weer_data_2021['Date'].dt.year == 2021]
+
+# Now, filter the data for the selected week (week_nummer)
 week_nummer = 1  # Replace this with your logic to select the week
 
 # Calculate the start and end dates for the selected week
 start_date = pd.to_datetime(f'2021-W{week_nummer}-1', format='%Y-W%U-%w')
 end_date = start_date + pd.DateOffset(days=6)
 
-# Filter the weather data for the selected week (filtered_weather_data)
+# Filter the weather data for the selected week
 filtered_weather_data = weer_data_2021[(weer_data_2021['Date'] >= start_date) & (weer_data_2021['Date'] <= end_date)]
 
 # Load the fietsdata (bike rental data)
@@ -346,7 +349,6 @@ fiets_rentals = pd.read_csv('fietsdata2021_rentals_by_day.csv')
 fiets_rentals['Day'] = pd.to_datetime(fiets_rentals['Day'])
 
 # Merge the weather data with the bike rental data based on the 'Date' and 'Day' columns
-# Note: 'Date' from weather data and 'Day' from bike rental data should match
 merged_data = pd.merge(filtered_weather_data, fiets_rentals[['Day', 'Total Rentals']], left_on='Date', right_on='Day', how='left')
 
 # Create a selectbox for choosing the type of graph
